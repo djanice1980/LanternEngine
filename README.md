@@ -6,7 +6,7 @@ not an official Lantern Engine release. What it changes:
 - **CUSA00900** (the US release) with update 1.09 is supported like CUSA03173: its executable is the same 1.09 code.
 - **One shader cache for every 1.09 edition** (`user/cache/shaders`), so the shipped shader catalogs reach every edition; a cache kept under a title ID moves there once.
 - **Linux from source on any distribution**: `engine/packaging/linux/setup-deps.sh` builds the libraries without root, `build.sh` finds them, and the GPU library fetches what the system lacks.
-- **An AppImage** (`engine/packaging/linux/appimage.sh`) with its own icon; `--install` adds it to the applications menu, `--play <game folder>` starts the game from a terminal, and its data lives in `~/.local/share/paleblood-engine`.
+- **An AppImage** (`engine/packaging/linux/appimage.sh`) with its own icon; its first start adds it to the applications menu (`--uninstall` removes the entry), `--play <game folder>` starts the game from a terminal, and its data lives in `~/.local/share/paleblood-engine`.
 - The launcher updates from this fork's releases, named `v<version>-paleblood.<n>`.
 
 Releases: [djanice1980/LanternEngine/releases](https://github.com/djanice1980/LanternEngine/releases). Everything below is Lantern Engine's own README; its credits and license apply, and the launcher inside still carries Lantern Engine's name.

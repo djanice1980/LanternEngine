@@ -6,9 +6,9 @@ every 1.09 edition, and this Linux package and AppImage built from source. Sourc
 github.com/djanice1980/LanternEngine. The launcher inside is still Lantern Engine's.
 
 AppImage: put it where it will stay (~/Applications), make it executable (chmod +x
-Paleblood*.AppImage) and run it; it needs FUSE 2 (libfuse.so.2) like every AppImage. An AppImage
-is not in the applications menu by itself: ./Paleblood*.AppImage --install adds a menu entry and
-icon for the file where it is (--uninstall removes them). Settings, saves, mods, logs and the shader cache go to
+Paleblood*.AppImage) and run it; it needs FUSE 2 (libfuse.so.2) like every AppImage. Its first start
+adds it to the applications menu (an entry and icon for the file where it is, kept up to date
+when the file moves); --uninstall removes them, PALEBLOOD_NO_MENU=1 leaves the menu alone. Settings, saves, mods, logs and the shader cache go to
 ~/.local/share/paleblood-engine (or $PALEBLOOD_DATA_DIR). From a terminal:
     ./Paleblood-Engine-*.AppImage --play /path/to/CUSA00900
 The tar.gz package below keeps everything in its own folder instead.

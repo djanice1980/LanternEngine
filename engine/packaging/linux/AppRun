@@ -33,27 +33,39 @@ export BB_OUT_DIR=$data/engine/out
 export BB_CONFIG=$data/lantern.ini
 export BB_GPU_USER_DIR=$data/user
 [[ -f $BB_CONFIG ]] || cp "$pkg/lantern.ini" "$BB_CONFIG"
-# --install: a menu entry and icon for this AppImage file (where it is now: move it to its
-# permanent folder, such as ~/Applications, first); --uninstall removes them again.
-if [[ ${1:-} == --install || ${1:-} == --uninstall ]]; then
-    apps=${XDG_DATA_HOME:-$HOME/.local/share}
-    desktop=$apps/applications/@ID@.desktop
-    icon=$apps/icons/hicolor/256x256/apps/@ID@.png
-    if [[ $1 == --uninstall ]]; then
-        rm -f "$desktop" "$icon"
-        echo "Removed the menu entry ($desktop); the data folder $data is kept."
-    else
-        target=${APPIMAGE:-$(readlink -f -- "$0")}
-        mkdir -p "$(dirname -- "$desktop")" "$(dirname -- "$icon")"
-        cp "$here/@ID@.png" "$icon"
-        sed "s|^Exec=.*|Exec=\"$target\" %U|" "$here/@ID@.desktop" > "$desktop"
-        chmod 644 "$desktop"
-        echo "Menu entry installed: $desktop, starting $target"
-    fi
+# The applications menu: each start writes the menu entry and icon for this AppImage file where it
+# is now (APPIMAGE, the runtime's variable), so the entry follows the file when it moves and a
+# fresh download is in the menu after its first start. PALEBLOOD_NO_MENU=1 leaves the menu alone;
+# --install only does this and exits; --uninstall removes the entry and icon.
+apps=${XDG_DATA_HOME:-$HOME/.local/share}
+desktop=$apps/applications/@ID@.desktop
+icon=$apps/icons/hicolor/256x256/apps/@ID@.png
+menu_caches() {
     command -v update-desktop-database >/dev/null && update-desktop-database "$apps/applications" 2>/dev/null
     command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -q -t "$apps/icons/hicolor" 2>/dev/null
+    command -v kbuildsycoca6 >/dev/null && kbuildsycoca6 >/dev/null 2>&1   # Plasma's menu
+    return 0
+}
+install_menu() {
+    local target=${APPIMAGE:-$(readlink -f -- "$0")} entry
+    # The icon by its full path: Plasma and GNOME both take one, and it needs no icon cache.
+    entry=$(sed "s|^Exec=.*|Exec=\"$target\" %U|; s|^Icon=.*|Icon=$icon|" "$here/@ID@.desktop")
+    if [[ -f $desktop && -f $icon ]] && [[ $(<"$desktop") == "$entry" ]]; then return 0; fi
+    mkdir -p "$(dirname -- "$desktop")" "$(dirname -- "$icon")"
+    cp "$here/@ID@.png" "$icon"
+    printf '%s\n' "$entry" > "$desktop"
+    chmod 644 "$desktop"
+    menu_caches
+    echo "Menu entry: $desktop, starting $target"
+}
+if [[ ${1:-} == --uninstall ]]; then
+    rm -f "$desktop" "$icon"
+    menu_caches
+    echo "Removed the menu entry ($desktop); the data folder $data is kept."
     exit 0
 fi
+if [[ ${PALEBLOOD_NO_MENU:-0} != 1 ]]; then install_menu; fi
+if [[ ${1:-} == --install ]]; then exit 0; fi
 if [[ ${1:-} == --play ]]; then
     shift
     remembered=$data/engine/out/game_dir.txt
