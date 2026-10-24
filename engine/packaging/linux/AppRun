@@ -33,6 +33,27 @@ export BB_OUT_DIR=$data/engine/out
 export BB_CONFIG=$data/lantern.ini
 export BB_GPU_USER_DIR=$data/user
 [[ -f $BB_CONFIG ]] || cp "$pkg/lantern.ini" "$BB_CONFIG"
+# --install: a menu entry and icon for this AppImage file (where it is now: move it to its
+# permanent folder, such as ~/Applications, first); --uninstall removes them again.
+if [[ ${1:-} == --install || ${1:-} == --uninstall ]]; then
+    apps=${XDG_DATA_HOME:-$HOME/.local/share}
+    desktop=$apps/applications/@ID@.desktop
+    icon=$apps/icons/hicolor/256x256/apps/@ID@.png
+    if [[ $1 == --uninstall ]]; then
+        rm -f "$desktop" "$icon"
+        echo "Removed the menu entry ($desktop); the data folder $data is kept."
+    else
+        target=${APPIMAGE:-$(readlink -f -- "$0")}
+        mkdir -p "$(dirname -- "$desktop")" "$(dirname -- "$icon")"
+        cp "$here/@ID@.png" "$icon"
+        sed "s|^Exec=.*|Exec=\"$target\" %U|" "$here/@ID@.desktop" > "$desktop"
+        chmod 644 "$desktop"
+        echo "Menu entry installed: $desktop, starting $target"
+    fi
+    command -v update-desktop-database >/dev/null && update-desktop-database "$apps/applications" 2>/dev/null
+    command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -q -t "$apps/icons/hicolor" 2>/dev/null
+    exit 0
+fi
 if [[ ${1:-} == --play ]]; then
     shift
     remembered=$data/engine/out/game_dir.txt

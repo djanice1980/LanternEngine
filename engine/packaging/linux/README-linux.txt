@@ -5,8 +5,10 @@ not an official Lantern Engine release: it adds the US edition CUSA00900, one sh
 every 1.09 edition, and this Linux package and AppImage built from source. Source and releases:
 github.com/djanice1980/LanternEngine. The launcher inside is still Lantern Engine's.
 
-AppImage: make it executable (chmod +x Paleblood*.AppImage) and run it; it needs FUSE 2
-(libfuse.so.2) like every AppImage. Settings, saves, mods, logs and the shader cache go to
+AppImage: put it where it will stay (~/Applications), make it executable (chmod +x
+Paleblood*.AppImage) and run it; it needs FUSE 2 (libfuse.so.2) like every AppImage. An AppImage
+is not in the applications menu by itself: ./Paleblood*.AppImage --install adds a menu entry and
+icon for the file where it is (--uninstall removes them). Settings, saves, mods, logs and the shader cache go to
 ~/.local/share/paleblood-engine (or $PALEBLOOD_DATA_DIR). From a terminal:
     ./Paleblood-Engine-*.AppImage --play /path/to/CUSA00900
 The tar.gz package below keeps everything in its own folder instead.
