@@ -23,6 +23,10 @@ namespace BloodborneLauncher.Core
         public string Placeholder { get; init; } = "";
         /// <summary>Passed even at its default (a launcher default that differs from the engine's).</summary>
         public bool AlwaysPass { get; init; }
+        /// <summary>Shown and passed on Linux only (a Vulkan layer or tool that exists there alone).</summary>
+        public bool LinuxOnly { get; init; }
+        /// <summary>Whether this switch applies on this system.</summary>
+        public bool Applies => !LinuxOnly || OperatingSystem.IsLinux();
 
         /// <summary>Its key in settings.json.</summary>
         public string Key => "env:" + Env;
@@ -90,6 +94,14 @@ namespace BloodborneLauncher.Core
             Pick("BB_GPU_ID", Graphics, L.T("Graphics card"),
                 L.T("For laptops and PCs with two graphics cards where the game picks the wrong one. Auto takes the faster one"), "",
                 new(L.T("Auto"), ""), new(L.T("First"), "0"), new(L.T("Second"), "1")),
+            // lsfg-vk (lsfg-vk.dev): Lossless Scaling's frame generation as a Vulkan layer, Linux only. The
+            // multiplier goes to a profile for bb-probe in its conf.toml and LSFGVK_PROFILE selects it
+            // (GameEnvironment.LsfgVk); the engine's frame limit drops to the refresh rate over the multiplier.
+            Pick("LSFGVK_MULTIPLIER", Graphics, L.T("Frame generation: lsfg-vk"),
+                L.T("Lossless Scaling's frame generation through the lsfg-vk Vulkan layer (lsfg-vk.dev; needs Lossless Scaling from Steam ") +
+                L.T("and the layer installed). 2x presents two frames for each the game draws, and the game is capped at the screen's ") +
+                L.T("refresh rate over the multiplier (60 FPS for 2x at 120 Hz). Off leaves lsfg-vk's own profiles in charge"), "",
+                new(L.T("Off"), ""), new("2x", "2"), new("3x", "3"), new("4x", "4")) with { LinuxOnly = true },
             Pick("BB_ANISO", Graphics, L.T("Texture filtering"),
                 L.T("Anisotropic filtering forced on the game's textures: ground and walls seen at an angle stay sharp. Lower ") +
                 L.T("values cost a little less GPU time; Game's own leaves the game's filtering as it is"), "16",
@@ -174,7 +186,7 @@ namespace BloodborneLauncher.Core
         /// <summary>The variables to pass: every switch with a valid value other than its default.</summary>
         public static IEnumerable<(string Name, string Value)> Changed(LauncherSettings s)
         {
-            foreach (var item in All)
+            foreach (var item in All.Where(i => i.Applies))
                 if (item.AlwaysPass)
                     yield return (item.Env, Get(s, item));
                 else if (s.Str(item.Key) is { Length: > 0 } value && Valid(item, value) && !IsDefault(item, value))

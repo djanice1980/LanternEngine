@@ -110,6 +110,9 @@ namespace BloodborneLauncher.Core
         /// "keep"), or null when none is on.</summary>
         public static string? ResolutionPatchChoice { get; set; }
 
+        /// <summary>What the last Build did for lsfg-vk (LsfgVk.Apply), for the launcher's log; null when off.</summary>
+        public static string? LsfgVkNote { get; private set; }
+
         public static Dictionary<string, string> Build(LauncherSettings s)
         {
             var fps = Fps(s);
@@ -242,6 +245,12 @@ namespace BloodborneLauncher.Core
             if (!s.Bool("safe_mode_next"))
                 foreach (var (variable, value) in EngineSwitches.Changed(s))
                     env[variable] = value;
+            // Frame generation through lsfg-vk (Linux): its profile for the game and the frame cap.
+            if (OperatingSystem.IsLinux() && env.TryGetValue("LSFGVK_MULTIPLIER", out var lsfg) &&
+                int.TryParse(lsfg, out var multiplier) && multiplier >= 2)
+                LsfgVkNote = LsfgVk.Apply(env, multiplier, Hardware.Detect().RefreshHz);
+            else
+                LsfgVkNote = null;
 
             // Extra variables last: they win over everything above.
             foreach (var (variable, value) in ExtraVariables(s))

@@ -23,10 +23,10 @@ namespace BloodborneLauncher.Views
             Add(Card(SymbolRegular.ArrowReset24, L.T("Changed switches"), L.T("Every switch on this page that is not at its default"),
                 SmallButton(L.T("Reset all"), SymbolRegular.ArrowUndo24, (_, _) => ResetAll()), out _changedHint));
 
-            foreach (var group in EngineSwitches.Groups.Where(g => EngineSwitches.All.Any(x => x.Group == g)))
+            foreach (var group in EngineSwitches.Groups.Where(g => EngineSwitches.All.Any(x => x.Group == g && x.Applies)))
             {
                 Group(L.T(group));
-                foreach (var item in EngineSwitches.All.Where(x => x.Group == group))
+                foreach (var item in EngineSwitches.All.Where(x => x.Group == group && x.Applies))
                     AddSwitch(item);
             }
             Group(L.T("About"));

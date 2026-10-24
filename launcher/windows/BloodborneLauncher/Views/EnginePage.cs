@@ -89,10 +89,10 @@ namespace BloodborneLauncher.Views
                 L.T("Uses FSR 4's balanced model at Performance and Ultra Performance: fewer trails behind moving characters, a little more GPU time"),
                 "fsr4_balanced", exp);
 
-            foreach (var group in EngineSwitches.Groups.Where(g => EngineSwitches.All.Any(x => x.Group == g)))
+            foreach (var group in EngineSwitches.Groups.Where(g => EngineSwitches.All.Any(x => x.Group == g && x.Applies)))
             {
                 Group(L.T(group));
-                foreach (var item in EngineSwitches.All.Where(x => x.Group == group))
+                foreach (var item in EngineSwitches.All.Where(x => x.Group == group && x.Applies))
                     AddSwitch(item);
             }
             Group(L.T("About"));

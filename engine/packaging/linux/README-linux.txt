@@ -43,6 +43,12 @@ one to a bug report).
 Updates: the launcher updates itself and the engine from the releases page (Settings > Updates),
 keeping lantern.ini, user/, mods/ and logs/.
 
+Frame generation: lsfg-vk (lsfg-vk.dev, with Lossless Scaling from Steam) works as a Vulkan layer.
+Engine page > Graphics > "Frame generation: lsfg-vk" picks the multiplier: the launcher keeps a
+"Paleblood Engine" profile for bb-probe in ~/.config/lsfg-vk/conf.toml, caps the game at the
+screen's refresh rate over the multiplier, and the log's "Frame generation:" line says whether the
+layer was found.
+
 DLSS: NVIDIA's DLSS runtime is in engine/out (libnvidia-ngx-dlss.so.*); it needs an RTX GPU and
 NVIDIA's own driver (libnvidia-ngx.so.1). DLSS Frame Generation is Windows only.
 

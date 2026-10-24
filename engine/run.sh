@@ -146,6 +146,26 @@ if [[ ${BB_AS_0_3:-0} == 1 ]]; then
     export BB_GUEST_IN_PLACE=0 BB_HOST_COPY_WAITS=all BB_PRODUCER_CHECK=1
 fi
 export BB_GUEST_IN_PLACE=${BB_GUEST_IN_PLACE:-${BB_PC_MODEL:-0}}
+# lsfg-vk (the launcher's "Frame generation: lsfg-vk" switch: LSFGVK_PROFILE names the profile it
+# wrote for bb-probe, LSFGVK_MULTIPLIER its multiplier): the layer is the system's; the log says
+# whether it is there, so a report shows what generated the frames.
+if [[ -n ${LSFGVK_PROFILE:-}${LSFGVK_MULTIPLIER:-} ]]; then
+    lsfg_manifest=
+    for dir in "${XDG_DATA_HOME:-$HOME/.local/share}/vulkan/implicit_layer.d" /etc/vulkan/implicit_layer.d \
+               /usr/share/vulkan/implicit_layer.d /usr/local/share/vulkan/implicit_layer.d; do
+        for candidate in "$dir"/*lsfg*.json; do
+            if [[ -f $candidate ]]; then lsfg_manifest=$candidate; break 2; fi
+        done
+    done
+    if [[ -z $lsfg_manifest ]]; then
+        echo "Frame generation: lsfg-vk chosen, but its Vulkan layer is not installed (no lsfg-vk manifest in the implicit_layer.d folders): no generated frames"
+    elif [[ ${DISABLE_LSFGVK:-} == 1 ]]; then
+        echo "Frame generation: lsfg-vk disabled (DISABLE_LSFGVK=1)"
+    else
+        # No apostrophes in the defaults: bash reads one inside ${...} in double quotes as a quote.
+        echo "Frame generation: lsfg-vk layer ($lsfg_manifest): profile ${LSFGVK_PROFILE:-chosen by the layer}, multiplier ${LSFGVK_MULTIPLIER:-from the profile}; game frame limit ${BB_FPS_LIMIT:-0} FPS (0 = none)"
+    fi
+fi
 # MangoHud (launcher switch: MANGOHUD=1) must be drawn once. Two overlays on top of each other
 # showed doubled, offset text: the Steam Deck's performance overlay (mangoapp, game mode) plus the
 # in-game layer, or the AppImage's bundled layer plus a system MangoHud (the layer names differ,
