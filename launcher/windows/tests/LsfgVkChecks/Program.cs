@@ -10,7 +10,7 @@ static void Require(bool condition, string message)
 // No file yet: a version 2 file with the profile alone.
 var fresh = LsfgVk.Merge("", LsfgVk.Profile(2));
 Require(fresh.StartsWith("version = 2\n\n[[profile]]\n", StringComparison.Ordinal), "A new file starts with its version");
-Require(fresh.Contains("active_in = [\"bb-probe\"]\n") && fresh.Contains("multiplier = 2\n"), "The profile names bb-probe and the multiplier");
+Require(fresh.Contains("active_in = [\"Paleblood Engine (launcher switch)\"]\n") && fresh.Contains("multiplier = 2\n"), "The profile is selected by the switch only, never by the game's name");
 
 // A player's file: [global] and their own profiles stay, ours is added at the end.
 const string theirs = "version = 2\n\n[global]\ndll = \"/home/p/Lossless Scaling/lsfg-vk.dll\"\nallow_fp16 = true\n\n[[profile]]\nname = \"mpv\"\nactive_in = [\"mpv\"]\nmultiplier = 3\n";
@@ -23,7 +23,7 @@ var middle = theirs.Replace("[[profile]]\nname = \"mpv\"", LsfgVk.Profile(2) + "
 var replaced = LsfgVk.Merge(middle, LsfgVk.Profile(4));
 Require(replaced.Contains("multiplier = 4\n") && !replaced.Contains("multiplier = 2\n"), "The multiplier changed");
 Require(replaced.Contains("[[profile]]\nname = \"mpv\"\nactive_in = [\"mpv\"]\nmultiplier = 3\n"), "The player's profile is untouched");
-Require(replaced.Split("Paleblood Engine").Length == 2, "Ours appears once");
+Require(replaced.Split("name = \"Paleblood Engine\"").Length == 2, "Ours appears once");
 Require(LsfgVk.Merge(replaced, LsfgVk.Profile(4)) == replaced, "Merging the same profile again changes nothing");
 
 // A [global] written after our profile belongs to the file, not to our block.
@@ -43,6 +43,13 @@ try
     Require(File.Exists(Path.Combine(dir, "conf.toml")) && note.Contains("written"), "The file is made where there is none: " + note);
     Require(LsfgVk.Apply(env, 3, 144).Contains("capped at 48") && env["BB_FPS_LIMIT"] == "48", "3x at 144 Hz caps at 48");
     Require(LsfgVk.Apply(env, 4, 60).Contains("capped at 30"), "The cap never goes below 30");
+    // A profile from the first build names bb-probe: with the switch off it is rewritten, keeping its multiplier.
+    var armed = File.ReadAllText(Path.Combine(dir, "conf.toml")).Replace("active_in = [\"Paleblood Engine (launcher switch)\"]", "active_in = [\"bb-probe\"]").Replace("multiplier = 4", "multiplier = 3");
+    File.WriteAllText(Path.Combine(dir, "conf.toml"), armed);
+    var disarmed = LsfgVk.Disarm();
+    var after = File.ReadAllText(Path.Combine(dir, "conf.toml"));
+    Require(disarmed != null && !after.Contains("bb-probe") && after.Contains("multiplier = 3\n"), "An armed profile is disarmed with the switch off: " + (disarmed ?? "null"));
+    Require(LsfgVk.Disarm() == null, "A disarmed profile is left alone");
 }
 finally
 {

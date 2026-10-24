@@ -250,7 +250,7 @@ namespace BloodborneLauncher.Core
                 int.TryParse(lsfg, out var multiplier) && multiplier >= 2)
                 LsfgVkNote = LsfgVk.Apply(env, multiplier, Hardware.Detect().RefreshHz);
             else
-                LsfgVkNote = null;
+                LsfgVkNote = OperatingSystem.IsLinux() ? LsfgVk.Disarm() : null;
 
             // Extra variables last: they win over everything above.
             foreach (var (variable, value) in ExtraVariables(s))

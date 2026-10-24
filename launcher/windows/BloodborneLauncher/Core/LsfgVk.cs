@@ -16,7 +16,12 @@ namespace BloodborneLauncher.Core
     public static class LsfgVk
     {
         public const string ProfileName = "Paleblood Engine";
-        public const string Process = "bb-probe";
+        /// <summary>The profile's active_in: a name no process has, so the layer never picks the profile
+        /// on its own (by the game's executable name, switch or no switch); only LSFGVK_PROFILE selects it.
+        /// The first build wrote "bb-probe" there, which ran the layer under the engine's own frame
+        /// generation with the switch off: Disarm rewrites such a profile.</summary>
+        public const string Process = "Paleblood Engine (launcher switch)";
+        private const string ArmedProcess = "bb-probe";
 
         public static string ConfigPath =>
             Environment.GetEnvironmentVariable("LSFGVK_CONFIG") is { Length: > 0 } path
@@ -25,6 +30,28 @@ namespace BloodborneLauncher.Core
                       ? xdg
                       : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config"),
                   "lsfg-vk", "conf.toml");
+
+        /// <summary>The switch off: a profile of ours that still names the game's executable is rewritten
+        /// so the layer leaves the game alone; the player's other profiles are not touched. Returns a
+        /// note for the log when it did something, else null.</summary>
+        public static string? Disarm()
+        {
+            try
+            {
+                var path = ConfigPath;
+                if (!File.Exists(path)) return null;
+                var text = File.ReadAllText(path).Replace("\r\n", "\n");
+                var mine = Regex.Match(text, $@"(?ms)^\[\[profile\]\]\s*$(?:(?!^\[\[profile\]\]\s*$).)*?^\s*name\s*=\s*""{Regex.Escape(ProfileName)}""\s*$(?:(?!^\[\[profile\]\]\s*$)(?!^\[global\]).)*");
+                if (!mine.Success || !Regex.IsMatch(mine.Value, $@"(?m)^\s*active_in\s*=.*""{Regex.Escape(ArmedProcess)}""")) return null;
+                var multiplier = Regex.Match(mine.Value, @"(?m)^\s*multiplier\s*=\s*(\d+)") is { Success: true } m && int.TryParse(m.Groups[1].Value, out var n) ? n : 2;
+                WriteProfile(path, multiplier);
+                return $"lsfg-vk off: the profile \"{ProfileName}\" in {path} no longer names the game (it ran the layer with the switch off)";
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return $"lsfg-vk off: the profile could not be rewritten ({e.Message})";
+            }
+        }
 
         /// <summary>Applies the switch to the game's environment: the profile written, selected, and
         /// the frame limit set. Returns what was done, for the launcher's log.</summary>
