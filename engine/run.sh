@@ -153,7 +153,8 @@ if [[ -n ${LSFGVK_PROFILE:-}${LSFGVK_MULTIPLIER:-} ]]; then
     lsfg_manifest=
     for dir in "${XDG_DATA_HOME:-$HOME/.local/share}/vulkan/implicit_layer.d" /etc/vulkan/implicit_layer.d \
                /usr/share/vulkan/implicit_layer.d /usr/local/share/vulkan/implicit_layer.d; do
-        for candidate in "$dir"/*lsfg*.json; do
+        # The manifest is VkLayer_LSFGVK_frame_generation.json (any case, so older names count too).
+        for candidate in "$dir"/*[lL][sS][fF][gG]*.json; do
             if [[ -f $candidate ]]; then lsfg_manifest=$candidate; break 2; fi
         done
     done
