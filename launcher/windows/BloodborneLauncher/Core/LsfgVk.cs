@@ -10,7 +10,8 @@ namespace BloodborneLauncher.Core
     /// LSFGVK_PROFILE: the launcher keeps one profile of its own for bb-probe with the chosen
     /// multiplier (the player's other profiles and [global], with the DLL's path, stay as they
     /// are) and names it in LSFGVK_PROFILE. The game is capped at the screen's refresh rate over
-    /// the multiplier, on the delta-time (uncapped) patch so its speed does not depend on the cap.
+    /// the multiplier, on the delta-time (uncapped) patch so its speed does not depend on the cap, and
+    /// the engine's own frame generation is left off for the run (two generators would stack).
     /// </summary>
     public static class LsfgVk
     {
@@ -33,6 +34,9 @@ namespace BloodborneLauncher.Core
             env["BB_FPS"] = "uncap";
             env["BB_FPS_LIMIT"] = limit.ToString(CultureInfo.InvariantCulture);
             env["BB_VBLANK_HZ"] = "0";
+            // The engine's own frame generation (FSR 3.1 or DLSS, frame_gen in lantern.ini) stays off
+            // for this run: two generators would double the doubled frames.
+            env["BB_FRAME_GEN"] = "off";
             env["LSFGVK_PROFILE"] = ProfileName;
             string written;
             try
@@ -43,7 +47,7 @@ namespace BloodborneLauncher.Core
             {
                 written = $"profile not written ({e.Message}); the layer's own rules apply";
             }
-            return $"lsfg-vk {multiplier}x: {written}; the game capped at {limit} FPS";
+            return $"lsfg-vk {multiplier}x: {written}; the game capped at {limit} FPS, the engine's own frame generation off";
         }
 
         /// <summary>The launcher's [[profile]] block.</summary>

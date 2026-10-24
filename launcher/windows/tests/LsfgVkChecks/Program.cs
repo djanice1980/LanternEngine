@@ -39,6 +39,7 @@ try
 {
     var note = LsfgVk.Apply(env, 2, 120);
     Require(env["BB_FPS"] == "uncap" && env["BB_FPS_LIMIT"] == "60" && env["LSFGVK_PROFILE"] == "Paleblood Engine", "2x at 120 Hz caps at 60 on the uncapped patch: " + note);
+    Require(env["BB_FRAME_GEN"] == "off", "The engine's own frame generation is off while lsfg-vk is on");
     Require(File.Exists(Path.Combine(dir, "conf.toml")) && note.Contains("written"), "The file is made where there is none: " + note);
     Require(LsfgVk.Apply(env, 3, 144).Contains("capped at 48") && env["BB_FPS_LIMIT"] == "48", "3x at 144 Hz caps at 48");
     Require(LsfgVk.Apply(env, 4, 60).Contains("capped at 30"), "The cap never goes below 30");
