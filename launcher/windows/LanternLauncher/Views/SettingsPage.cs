@@ -452,7 +452,7 @@ namespace BloodborneLauncher.Views
                 Prompt.Tell(L.T("Shader cache"), L.T("Close the game first: it is using the cache."));
                 return;
             }
-            var cache = Path.Combine(Paths.PortDir, "user", "cache");
+            var cache = ShaderCacheShare.CacheDir;
             // Thousands of files: deleted on a worker thread, the launcher stays responsive.
             var failed = await Task.Run(() =>
             {

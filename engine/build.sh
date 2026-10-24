@@ -2,6 +2,19 @@
 set -euo pipefail
 cd -- "$(dirname -- "$0")"
 mkdir -p out
+# BB_DEPS_PREFIX: the libraries packaging/linux/setup-deps.sh built (out/deps or ~/.cache/lantern-engine/deps),
+# ahead of the system's; they were built with clang, so clang builds the engine against them.
+if [[ -z ${BB_DEPS_PREFIX:-} ]]; then
+    for candidate in "$PWD/out/deps" "${XDG_CACHE_HOME:-$HOME/.cache}/lantern-engine/deps"; do
+        if [[ -d $candidate/lib && $candidate != *" "* ]]; then BB_DEPS_PREFIX=$candidate; break; fi
+    done
+fi
+if [[ -n ${BB_DEPS_PREFIX:-} ]]; then
+    export PATH=$BB_DEPS_PREFIX/bin:$PATH
+    export PKG_CONFIG_PATH=$BB_DEPS_PREFIX/lib/pkgconfig:$BB_DEPS_PREFIX/lib64/pkgconfig:$BB_DEPS_PREFIX/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
+    export CMAKE_PREFIX_PATH=$BB_DEPS_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}
+    if [[ -z ${CC:-} ]] && command -v clang >/dev/null; then export CC=clang CXX=${CXX:-clang++}; fi
+fi
 if [[ -z ${CC:-} ]]; then
     CC=$(command -v cc || command -v gcc || true)
     if [[ -z $CC ]]; then

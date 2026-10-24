@@ -23,7 +23,9 @@ namespace BloodborneLauncher.Core
     /// </summary>
     public static class Updater
     {
-        public const string Repository = "Awakenchan/LanternEngine";
+        /// <summary>Paleblood Engine, a changed version of Lantern Engine: its own releases, so an update
+        /// never replaces this engine with upstream's.</summary>
+        public const string Repository = "djanice1980/LanternEngine";
         public static string ReleasesPage => $"https://github.com/{Repository}/releases";
 
         /// <summary>The engine build this launcher is made for (package.json "engine").</summary>
@@ -93,9 +95,10 @@ namespace BloodborneLauncher.Core
             _ => CurrentBeta > 0,
         };
 
+        /// <summary>This fork's releases are "v0.9.37 paleblood 1" (Repository: only its own are listed).</summary>
         public static string Label(Version version, int beta) =>
             beta <= 0 ? $"v{version}"
-            : beta % 100 == 0 ? $"v{version} beta {beta / 100}" : $"v{version} beta {beta / 100}.{beta % 100}";
+            : beta % 100 == 0 ? $"v{version} paleblood {beta / 100}" : $"v{version} paleblood {beta / 100}.{beta % 100}";
 
         /// <summary>Orders builds: by version, and a version's betas before its stable release.</summary>
         public static int Compare(Version a, int betaA, Version b, int betaB)
@@ -236,12 +239,16 @@ namespace BloodborneLauncher.Core
             var plus = text.IndexOf('+');
             if (plus > 0) text = text[..plus];
             beta = 0;
+            // Paleblood Engine numbers its releases "0.9.37-paleblood.1": ordered as betas are.
             var marker = text.IndexOf("-beta", StringComparison.OrdinalIgnoreCase);
+            var markerLength = 5;
+            if (marker < 0 && text.IndexOf("-paleblood", StringComparison.OrdinalIgnoreCase) is var pale && pale > 0)
+                (marker, markerLength) = (pale, 10);
             if (marker > 0)
             {
                 // "beta.9" and "beta.9.1" (a small update to beta 9): kept as 900 and 901, so 9 <
                 // 9.1 < 10. Launchers before 9.1 read "9.1" as 91, which is newer too: they update.
-                var parts = text[(marker + 5)..].TrimStart('.', '-', ' ').Split('.', '-', ' ', '+');
+                var parts = text[(marker + markerLength)..].TrimStart('.', '-', ' ').Split('.', '-', ' ', '+');
                 var major = parts.Length > 0 && int.TryParse(parts[0], out var a) && a > 0 ? a : 1;
                 var minor = parts.Length > 1 && int.TryParse(parts[1], out var b) && b is > 0 and < 100 ? b : 0;
                 beta = major * 100 + minor;
@@ -470,7 +477,10 @@ namespace BloodborneLauncher.Core
 #if AVALONIA
         /// <summary>Whether this launcher can update itself: releases carry the Windows package and the
         /// Linux one (LanternEngine-v&lt;version&gt;-linux-x64.tar.gz, with this launcher inside).</summary>
-        public static bool Supported => OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
+        /// An AppImage is read-only (the APPIMAGE variable marks one): it is replaced by downloading the
+        /// new file, not from here.</summary>
+        public static bool Supported => (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) &&
+                                        Environment.GetEnvironmentVariable("APPIMAGE") is not { Length: > 0 };
 
 #endif
         /// <summary>Removes the exe an update moved aside (it was still running then).</summary>

@@ -24,7 +24,7 @@ namespace BloodborneLauncher.Core
         }
 
         /// <summary>Everything the last session printed: logs\last_session.log in the engine folder.</summary>
-        public static string SessionLog => Path.Combine(Paths.IsPortDir(Paths.PortDir) ? Paths.PortDir : Paths.ConfigDir, "logs", "last_session.log");
+        public static string SessionLog => Path.Combine(Paths.IsPortDir(Paths.PortDir) ? Paths.DataDir : Paths.ConfigDir, "logs", "last_session.log");
 
         public bool Running => _process != null;
         public DateTime StartedAt { get; private set; }
@@ -73,7 +73,8 @@ namespace BloodborneLauncher.Core
                 // run.sh with --game-dir and this same environment (engine/packaging/linux).
                 if (!Paths.IsPortDir(Paths.PortDir))
                     return "The engine folder is not set. Choose it in Settings › Lantern Engine.";
-                if (!Writable(Path.Combine(Paths.EngineDir, "out")))
+                // The prepared files go to BB_OUT_DIR when it is set (the AppImage: engine/out is read-only there).
+                if (!Writable(Environment.GetEnvironmentVariable("BB_OUT_DIR") is { Length: > 0 } outDir ? outDir : Path.Combine(Paths.EngineDir, "out")))
                     return $"Windows does not let the game write into its own folder ({Paths.PortDir}), which it needs for its " +
                            "prepared files, logs and saves. This happens under Program Files: move the Lantern Engine folder " +
                            "somewhere else, such as C:\\Games or your Documents.";

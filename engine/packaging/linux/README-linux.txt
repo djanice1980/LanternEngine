@@ -1,4 +1,15 @@
-Lantern Engine for Linux (x86-64)
+Paleblood Engine for Linux (x86-64)
+
+Paleblood Engine is a changed version of Lantern Engine by Awaken (github.com/Awakenchan/LanternEngine),
+not an official Lantern Engine release: it adds the US edition CUSA00900, one shared shader cache for
+every 1.09 edition, and this Linux package and AppImage built from source. Source and releases:
+github.com/djanice1980/LanternEngine. The launcher inside is still Lantern Engine's.
+
+AppImage: make it executable (chmod +x Paleblood*.AppImage) and run it; it needs FUSE 2
+(libfuse.so.2) like every AppImage. Settings, saves, mods, logs and the shader cache go to
+~/.local/share/paleblood-engine (or $PALEBLOOD_DATA_DIR). From a terminal:
+    ./Paleblood-Engine-*.AppImage --play /path/to/CUSA00900
+The tar.gz package below keeps everything in its own folder instead.
 
 Needs: a Vulkan 1.3 GPU driver (Mesa RADV for AMD, NVIDIA's own driver, Intel ANV), glibc 2.38 or
 later (Ubuntu 24.04, Debian 13, Fedora 39, Arch, SteamOS 3.6, Bazzite), Python 3, X11 or Wayland.
@@ -9,7 +20,7 @@ one with eboot.bin and sce_module), then Play. If your file manager does not run
 once in this folder.
 
 From a terminal instead:
-    ./lantern.sh /path/to/CUSA03173
+    ./lantern.sh /path/to/CUSA03173   (or CUSA00900: the US edition with update 1.09 runs the same code)
 The folder is remembered, so later starts need only ./lantern.sh. A CUSA03173 folder next to
 this one, or inside it, is found without the argument.
 

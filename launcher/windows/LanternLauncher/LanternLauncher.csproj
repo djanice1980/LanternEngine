@@ -10,7 +10,8 @@
     <AssemblyName>Lantern Engine</AssemblyName>
     <RootNamespace>BloodborneLauncher</RootNamespace>
     <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
-    <ApplicationIcon>..\BloodborneLauncher\app.ico</ApplicationIcon>
+    <!-- Paleblood Engine's own icon: Lantern Engine's NOTICE keeps its icons for its own releases. -->
+    <ApplicationIcon>Assets\paleblood.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Core/PadMap.cs has a Main of its own (not an entry point). -->
     <StartupObject>BloodborneLauncher.Program</StartupObject>
@@ -28,11 +29,11 @@
     <Compile Include="..\BloodborneLauncher\Core\**\*.cs" Link="Core\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\Shared\SourceStamp.cs" Link="Core\SourceStamp.cs" />
     <Compile Include="..\BloodborneLauncher\GlobalUsings.cs" Link="GlobalUsings.cs" />
-    <!-- The window icons (Core/AppIcon.cs reads them by file name). -->
-    <EmbeddedResource Include="..\BloodborneLauncher\app.ico" LogicalName="app.ico" />
-    <EmbeddedResource Include="..\BloodborneLauncher\lantern-beta.ico" LogicalName="lantern-beta.ico" />
-    <EmbeddedResource Include="..\BloodborneLauncher\lantern-stable.ico" LogicalName="lantern-stable.ico" />
-    <EmbeddedResource Include="..\BloodborneLauncher\lantern-j3loo.ico" LogicalName="lantern-j3loo.ico" />
+    <!-- The window icons (Core/AppIcon.cs reads them by file name): every choice is the Paleblood icon (one file each: MSBuild refuses the same file twice). -->
+    <EmbeddedResource Include="Assets\paleblood.ico" LogicalName="app.ico" />
+    <EmbeddedResource Include="Assets\paleblood-beta.ico" LogicalName="lantern-beta.ico" />
+    <EmbeddedResource Include="Assets\paleblood-stable.ico" LogicalName="lantern-stable.ico" />
+    <EmbeddedResource Include="Assets\paleblood-j3loo.ico" LogicalName="lantern-j3loo.ico" />
     <EmbeddedResource Include="..\BloodborneLauncher\Localization\*.json" LogicalName="BloodborneLauncher.Localization.%(Filename)%(Extension)" />
     <!-- The Discord status preview's picture (Settings › Community). -->
     <AvaloniaResource Include="..\BloodborneLauncher\Assets\discord-logo.png" Link="Assets\discord-logo.png" />

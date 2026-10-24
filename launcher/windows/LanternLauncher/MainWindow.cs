@@ -76,7 +76,7 @@ namespace BloodborneLauncher
 
         public MainWindow()
         {
-            Title = "Lantern Engine";
+            Title = "Paleblood Engine";
             Width = 1040;
             Height = 780;
             MinWidth = 820;

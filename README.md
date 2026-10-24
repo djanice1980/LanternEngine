@@ -1,3 +1,18 @@
+# Paleblood Engine
+
+**Paleblood Engine is a changed version of [Lantern Engine by Awaken](https://github.com/Awakenchan/LanternEngine)**,
+not an official Lantern Engine release. What it changes:
+
+- **CUSA00900** (the US release) with update 1.09 is supported like CUSA03173: its executable is the same 1.09 code.
+- **One shader cache for every 1.09 edition** (`user/cache/shaders`), so the shipped shader catalogs reach every edition; a cache kept under a title ID moves there once.
+- **Linux from source on any distribution**: `engine/packaging/linux/setup-deps.sh` builds the libraries without root, `build.sh` finds them, and the GPU library fetches what the system lacks.
+- **An AppImage** (`engine/packaging/linux/appimage.sh`) with a desktop entry and its own icon; its data lives in `~/.local/share/paleblood-engine`.
+- The launcher updates from this fork's releases, named `v<version>-paleblood.<n>`.
+
+Releases: [djanice1980/LanternEngine/releases](https://github.com/djanice1980/LanternEngine/releases). Everything below is Lantern Engine's own README; its credits and license apply, and the launcher inside still carries Lantern Engine's name.
+
+---
+
 # Lantern Engine
 <a href="https://trendshift.io/repositories/302591?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-302591" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/302591/daily?language=C%23" alt="Awakenchan%2FBloodBorneButPc | Trendshift" width="250" height="55"/></a>
 

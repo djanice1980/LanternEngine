@@ -23,14 +23,17 @@ namespace BloodborneLauncher.Core
         /// writes and reads them.</summary>
         private const string Archived = "CUSA03173";
 
-        public static string CacheDir => Path.Combine(Paths.PortDir, "user", "cache");
+        /// <summary>user\cache in the data folder (BB_GPU_USER_DIR when the start program is given one, as
+        /// the AppImage does).</summary>
+        public static string CacheDir => Path.Combine(
+            Environment.GetEnvironmentVariable("BB_GPU_USER_DIR") is { Length: > 0 } user ? user : Path.Combine(Paths.DataDir, "user"), "cache");
 
         /// <summary>What this engine stamps its caches with (start\main.cpp ResetStaleGpuCache).</summary>
         private static string Identity()
         {
             var stamp = Path.Combine(CacheDir, "engine.txt");
             if (File.Exists(stamp)) return File.ReadAllText(stamp).Trim();
-            var id = Path.Combine(Paths.PortDir, "engine", "out", "gpu-cache.id");
+            var id = Path.Combine(Paths.BinariesDir, "gpu-cache.id");
             return File.Exists(id) ? "gpu " + File.ReadAllText(id).Trim() : "";
         }
 

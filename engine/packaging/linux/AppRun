@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# The AppImage's entry (packaging/linux/appimage.sh fills @NAME@ and @ID@): opens the launcher, or
+# with --play [game folder] starts the game from a terminal as lantern.sh does. Everything the
+# engine writes goes to the data folder (the AppImage itself is read-only):
+#   ~/.local/share/@ID@   or $PALEBLOOD_DATA_DIR
+# with lantern.ini, user/ (saves, shader cache), mods/, logs/ and engine/out (prepared files).
+set -euo pipefail
+# The runtime keeps the image mounted while the descriptors it hands this process stay open in
+# some descendant (a pipe on fd 3); run.sh opens its log file as fd 3 (BB_SAVE_LOG), which closed
+# that pipe and unmounted the image under the running engine ("Transport endpoint is not
+# connected"). Every inherited descriptor from 3 up is duplicated to 100 higher first.
+fds=(/proc/$$/fd/*)   # listed first: the listing itself opens a descriptor that is gone again
+for fd in "${fds[@]}"; do
+    n=${fd##*/}
+    if (( n >= 3 && n < 100 )) && [[ -e /proc/$$/fd/$n ]]; then eval "exec $((n + 100))>&$n"; fi
+done
+[[ -z ${PALEBLOOD_DEBUG:-} ]] || ls -l "/proc/$$/fd" >&2
+here=$(cd -- "$(dirname -- "$(readlink -f -- "$0")")" && pwd)
+pkg=$here/@NAME@
+data=${PALEBLOOD_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/@ID@}
+mkdir -p "$data/engine/out" "$data/user" "$data/logs" "$data/mods"
+# The engine's programs beside the prepared files, where the start scripts look for them
+# (bb-shader-lab for the shader cache, gpu-cache.id, the DLSS runtime): links, made again at each
+# start because the AppImage mounts at a new place every time. The GPU library folder too, so
+# bb-probe's own RUNPATH ($ORIGIN/gpu) also resolves through the link.
+for f in "$pkg"/engine/out/*; do
+    base=$(basename -- "$f")
+    [[ $base == gpu ]] && { rm -rf "$data/engine/out/gpu"; ln -sfn "$f" "$data/engine/out/gpu"; continue; }
+    [[ -L $data/engine/out/$base || ! -e $data/engine/out/$base ]] && ln -sfn "$f" "$data/engine/out/$base"
+done
+export BB_DATA_DIR=$data
+export BB_OUT_DIR=$data/engine/out
+export BB_CONFIG=$data/lantern.ini
+export BB_GPU_USER_DIR=$data/user
+[[ -f $BB_CONFIG ]] || cp "$pkg/lantern.ini" "$BB_CONFIG"
+if [[ ${1:-} == --play ]]; then
+    shift
+    remembered=$data/engine/out/game_dir.txt
+    game=${BB_GAME_DIR:-}
+    if [[ $# -gt 0 && -f $1/eboot.bin ]]; then game=$(cd -- "$1" && pwd); shift; fi
+    if [[ -z $game && -f $remembered ]]; then game=$(<"$remembered"); fi
+    if [[ -z $game || ! -f $game/eboot.bin ]]; then
+        echo 'No game folder: pass it after --play (the folder with eboot.bin), e.g. --play ~/Games/CUSA00900' >&2
+        exit 1
+    fi
+    printf '%s\n' "$game" > "$remembered"
+    exec "$pkg/engine/out/bb-start" --game-dir "$game" "$@"
+fi
+cd "$pkg"
+exec "$pkg/Lantern Engine" "$@"
