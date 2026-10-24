@@ -1359,7 +1359,7 @@
   "Use a shader cache": "Usa una cache degli shader",
   "Shader cache|*.zip|All files|*.*": "Cache degli shader|*.zip|Tutti i file|*.*",
   "Replace your shader cache?": "Sostituire la tua cache degli shader?",
-  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak).": "La tua ha {0} pipeline; viene conservata come backup (user\\cache\\CUSA03173.bak).",
+  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\shaders.bak).": "La tua ha {0} pipeline; viene conservata come backup (user\\cache\\shaders.bak).",
   "Shader cache: {0} pipelines taken; the game loads them at the next start.": "Cache degli shader: {0} pipeline acquisite; il gioco le carica al prossimo avvio.",
   "Shader cache not used": "Cache degli shader non usata",
   "This file doesn't fit: ": "Questo file non è compatibile: ",

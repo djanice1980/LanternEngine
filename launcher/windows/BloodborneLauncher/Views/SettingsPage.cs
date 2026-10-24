@@ -538,9 +538,9 @@ namespace BloodborneLauncher.Views
                 }
                 return;
             }
-            var mine = ShaderCacheShare.Pipelines(Path.Combine(ShaderCacheShare.CacheDir, "CUSA03173"));
+            var mine = ShaderCacheShare.Pipelines(Path.Combine(ShaderCacheShare.CacheDir, ShaderCacheShare.Folder));
             if (mine > 0 && !Prompt.Confirm(L.T("Replace your shader cache?"),
-                    L.F($"Yours has {mine} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak)."), L.T("Replace")))
+                    L.F($"Yours has {mine} pipelines; it is kept as a backup (user\\cache\\shaders.bak)."), L.T("Replace")))
                 return;
             try
             {

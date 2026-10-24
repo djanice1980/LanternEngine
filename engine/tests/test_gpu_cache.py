@@ -66,18 +66,48 @@ class GpuCacheTests(unittest.TestCase):
                     shutil.rmtree(cache)
                 cache.mkdir()
                 if cache_vendor is not None:
-                    (cache / 'CUSA03173').mkdir()
-                    (cache / 'CUSA03173' / 'profile.bin').write_bytes(b'x')
-                    (cache / 'CUSA03173.vkcache').write_bytes(b'BPBC' + bytes(4) + cache_vendor.to_bytes(4, 'little'))
+                    (cache / 'shaders').mkdir()
+                    (cache / 'shaders' / 'profile.bin').write_bytes(b'x')
+                    (cache / 'shaders.vkcache').write_bytes(b'BPBC' + bytes(4) + cache_vendor.to_bytes(4, 'little'))
                 with patch.object(gpu_cache, 'gpu_vendors', return_value=set(vendors)), \
                         patch.object(gpu_cache, 'lab_run', side_effect=run), patch.object(gpu_cache, 'log'):
                     gpu_cache.seed(cache, catalogs, root / 'game', root / 'eboot.elf', lab)
-                return list(seeded), (cache / 'CUSA03173' / 'profile.bin').read_bytes() if (cache / 'CUSA03173' / 'profile.bin').exists() else None
+                return list(seeded), (cache / 'shaders' / 'profile.bin').read_bytes() if (cache / 'shaders' / 'profile.bin').exists() else None
 
             self.assertEqual(start({0x1002, 0x10DE}), (['shader-catalog/CUSA03173'], b'10DE'))
             self.assertEqual(start({0x1002}), (['amd/CUSA03173'], b'1002'))
             self.assertEqual(start({0x1002, 0x10DE}, cache_vendor=0x1002)[0], ['amd/CUSA03173'])
             self.assertEqual(start({0x8086}), ([], None))
+
+
+    def test_old_caches_move_to_the_shared_folder_once(self):
+        import gpu_cache
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory, patch.object(gpu_cache, 'log'):
+            cache = Path(directory)
+            for name in ('CUSA03173', 'CUSA03173-scene-curve', 'CUSA00900'):
+                (cache / name).mkdir()
+                (cache / name / 'a.key').write_text(name)
+            (cache / 'CUSA03173.vkcache').write_bytes(b'x')
+            gpu_cache.move_old_cache(cache)
+            self.assertEqual(sorted(p.name for p in cache.iterdir()),
+                             ['CUSA00900', 'shaders', 'shaders-scene-curve', 'shaders.vkcache'])
+            self.assertEqual((cache / 'shaders' / 'a.key').read_text(), 'CUSA03173')
+            (cache / 'CUSA03173').mkdir()
+            gpu_cache.move_old_cache(cache)
+            self.assertTrue((cache / 'CUSA03173').is_dir())
+
+    def test_a_cusa00900_cache_moves_when_there_is_no_cusa03173_one(self):
+        import gpu_cache
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory, patch.object(gpu_cache, 'log'):
+            cache = Path(directory)
+            (cache / 'CUSA00900').mkdir()
+            (cache / 'CUSA00900.vkcache').write_bytes(b'x')
+            gpu_cache.move_old_cache(cache)
+            self.assertEqual(sorted(p.name for p in cache.iterdir()), ['shaders', 'shaders.vkcache'])
+            self.assertEqual(gpu_cache.cache_folder('CUSA03173'), 'shaders')
+            self.assertEqual(gpu_cache.cache_folder('CUSA00207'), 'CUSA00207')
 
 
 if __name__ == '__main__':

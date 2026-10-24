@@ -69,7 +69,7 @@ void CheckGame(const fs::path& game, const Bytes& image, const fs::path& engine)
     }
     const std::string found = "Found " + title + " version " + version + " (sce_sys/param.sfo).";
     if (title != kSupportedTitle) {
-        Log("Game check: %s Works best with Bloodborne CUSA03173 (update 1.09): this edition's executable differs, "
+        Log("Game check: %s Works best with Bloodborne CUSA03173 or CUSA00900 (update 1.09): this edition's executable differs, "
             "so it starts without the FPS, resolution and engine patches made for that one (30 FPS, the game's own "
             "settings). Expect missing features; crashes here are not supported yet.",
             found.c_str());

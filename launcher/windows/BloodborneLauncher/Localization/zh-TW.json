@@ -1359,7 +1359,7 @@
   "Use a shader cache": "使用著色器快取",
   "Shader cache|*.zip|All files|*.*": "著色器快取|*.zip|所有檔案|*.*",
   "Replace your shader cache?": "要取代您的著色器快取嗎？",
-  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak).": "您的快取有 {0} 個管線；會保留為備份（user\\cache\\CUSA03173.bak）。",
+  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\shaders.bak).": "您的快取有 {0} 個管線；會保留為備份（user\\cache\\shaders.bak）。",
   "Shader cache: {0} pipelines taken; the game loads them at the next start.": "著色器快取：已採用 {0} 個管線；遊戲會在下次啟動時載入。",
   "Shader cache not used": "未使用著色器快取",
   "This file doesn't fit: ": "此檔案不適用： ",

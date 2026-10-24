@@ -8,7 +8,7 @@
 #
 # Phases, in this order the first time:
 #   profile  an empty cache: the engine writes this GPU's (and family's) shader profile
-#   seed     copies $LANTERN_CACHE (a player's or the dev PC's cache folder, CUSA03173) and
+#   seed     copies $LANTERN_CACHE (a player's or the dev PC's cache folder, shaders) and
 #            recompiles it for that profile with bb-shader-lab, then checks it (--check-cache)
 #   warmup   a start that builds every cached pipeline under validation
 #   play     a start from an empty cache: pipelines compiled in play, under validation
@@ -22,7 +22,7 @@ family=${2:-none}
 seconds=${3:-300}
 engine=$(cd -- "$(dirname -- "$0")/.." && pwd)
 work=${LANTERN_VALIDATE_DIR:-/tmp/lantern-validate}/$family
-cache=$work/gpu/cache/CUSA03173
+cache=$work/gpu/cache/shaders
 : "${BB_GAME_DIR:?set BB_GAME_DIR to the game folder}"
 mkdir -p "$work/data" "$work/gpu/cache"
 export BB_DATA_DIR=$work/data BB_GPU_USER_DIR=$work/gpu BB_UPSCALER=none
@@ -36,7 +36,7 @@ profile)
     mkdir -p "$work/gpu/cache"
     ;;
 seed)
-    : "${LANTERN_CACHE:?set LANTERN_CACHE to a cache folder (…/cache/CUSA03173) to copy}"
+    : "${LANTERN_CACHE:?set LANTERN_CACHE to a cache folder (…/cache/shaders) to copy}"
     [[ -f $cache/profile.bin ]] || { echo "run the profile phase first"; exit 1; }
     profile=$(mktemp)
     cp "$cache/profile.bin" "$profile"

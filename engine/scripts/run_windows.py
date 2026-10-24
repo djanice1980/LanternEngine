@@ -21,6 +21,7 @@ import sys
 import struct
 import time
 import zlib
+from gpu_cache import move_old_cache
 from mods import remove_overlay
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -233,6 +234,7 @@ def main():
     out = data / 'out' if (data / 'out' / 'bb-probe.exe').is_file() else ROOT / 'out'
     try:
         engine = json.loads((PACKAGE / 'package.json').read_text(encoding='utf-8-sig')).get('engine', '')
+        move_old_cache(gpu_cache_dir())
         reset_stale_gpu_cache(gpu_cache_dir(), gpu_cache_id(out, engine))
     except (OSError, ValueError):
         pass

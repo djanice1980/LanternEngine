@@ -106,6 +106,37 @@ unsigned CacheGpuVendor(const fs::path& cache_folder) {
     return vendor;
 }
 
+// Every edition whose executable is the verified 1.09 code (CUSA03173, and CUSA00900, whose 1.09
+// executable is byte-identical) runs the same shaders, so they keep one cache folder: kGpuCacheName,
+// as in src/probe.c and scripts/gpu_cache.py. The shipped shader catalogs and the catalogs players
+// share still name their folder kCatalogName.
+const char* const kGpuCacheName = "shaders";
+const char* const kCatalogName = "CUSA03173";
+
+fs::path GpuCacheFolder(const fs::path& catalog_name) {
+    return catalog_name == kCatalogName ? fs::path(kGpuCacheName) : catalog_name;
+}
+
+// A cache kept under its title ID before the shared one (CUSA03173's first, else CUSA00900's) moved
+// to kGpuCacheName, with its driver cache and tone curve cache; only while there is none.
+void MoveOldGpuCache(const fs::path& cache) {
+    std::error_code e;
+    if (fs::exists(cache / kGpuCacheName, e)) return;
+    for (const std::string old : {"CUSA03173", "CUSA00900"}) {
+        if (!fs::is_directory(cache / old, e)) continue;
+        for (const char* suffix : {"", "-scene-curve", ".vkcache"}) {
+            const fs::path from = cache / (old + suffix), to = cache / (kGpuCacheName + std::string(suffix));
+            if (fs::exists(from, e) && !fs::exists(to, e)) fs::rename(from, to, e);
+            if (e) {
+                Log("GPU cache: %s not moved to %s: %s", old.c_str(), kGpuCacheName, e.message().c_str());
+                return;
+            }
+        }
+        Log("GPU cache: %s moved to %s (one cache for every 1.09 edition)", old.c_str(), kGpuCacheName);
+        return;
+    }
+}
+
 void SeedGpuCache(const fs::path& cache, const fs::path& catalogs, const fs::path& game, const fs::path& eboot,
                   const fs::path& recompiler) {
     std::error_code error;
@@ -124,7 +155,7 @@ void SeedGpuCache(const fs::path& cache, const fs::path& catalogs, const fs::pat
     }
     for (const auto& [game_name, candidates] : by_game) {
         std::error_code e;
-        const fs::path target = cache / game_name;
+        const fs::path target = cache / GpuCacheFolder(game_name);
         unsigned vendor = CacheGpuVendor(target);
         if (!vendor) {
             for (const unsigned preferred : {0x10DEu, 0x1002u, 0x8086u}) {
@@ -142,7 +173,7 @@ void SeedGpuCache(const fs::path& cache, const fs::path& catalogs, const fs::pat
             fs::create_directories(target, e);
             fs::copy_file(catalog / "profile.bin", target / "profile.bin", e);
             Log("GPU cache %s: first start; the shader catalog's GPU profile used until the engine checks it",
-                Utf8(game_name).c_str());
+                Utf8(target.filename()).c_str());
         }
         if (!fs::is_regular_file(target / "profile.bin", e)) continue;
         std::uint64_t files = 0, bytes = 0;
@@ -160,10 +191,10 @@ void SeedGpuCache(const fs::path& cache, const fs::path& catalogs, const fs::pat
         const auto first = output.find("Shader catalog:");
         const auto last = output.rfind("Shader cache:");
         if (first != std::string::npos)
-            Log("GPU cache %s: %s", Utf8(game_name).c_str(),
+            Log("GPU cache %s: %s", Utf8(target.filename()).c_str(),
                 Trim(output.substr(first + 16, output.find('\n', first) - first - 16)).c_str());
         if (code == 0 && last != std::string::npos)
-            Log("GPU cache %s: %s (%.1f s)", Utf8(game_name).c_str(),
+            Log("GPU cache %s: %s (%.1f s)", Utf8(target.filename()).c_str(),
                 Trim(output.substr(last + 14, output.find('\n', last) - last - 14)).c_str(), seconds);
         WriteText(marker, std::to_string(code) + "\n");
     }
@@ -290,6 +321,7 @@ int Main(std::vector<std::wstring> arguments) {
             if (!old.empty()) legacy = "gpu " + old;
         } catch (const Error&) {
         }
+        MoveOldGpuCache(Path(Env("BB_GPU_USER_DIR", "")) / "cache");
         ResetStaleGpuCache(Path(Env("BB_GPU_USER_DIR", "")) / "cache", identity, legacy, out / "bb-shader-lab.exe");
     } catch (const std::exception&) {
     }
@@ -407,7 +439,8 @@ int Main(std::vector<std::wstring> arguments) {
             title = SfoText(ParseSfo(ReadFile(merged / "sce_sys" / "param.sfo")), "TITLE_ID");
         } catch (const std::exception&) {
         }
-        other_edition = code == "unchecked" ? title != "CUSA03173" : code != "1.09";
+        // Unchecked (BB_SKIP_GAME_CHECK): the editions whose 1.09 executable is the patches' own.
+        other_edition = code == "unchecked" ? title != "CUSA03173" && title != "CUSA00900" : code != "1.09";
     }
     if (other_edition) SetEnv("BB_OTHER_EDITION", "1");
     else UnsetEnv("BB_OTHER_EDITION");

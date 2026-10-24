@@ -329,6 +329,10 @@ namespace BloodborneLauncher.Core
                 Add(Health.Warning, L.F($"The add-ons folder chosen before is gone: {dlcChosen}. Choose it again, or clear it."));
             else if (GameEnvironment.FoundDlc(r.GameDir) is { } found)
                 Add(Health.Good, L.F($"Add-ons found next to the game: {found}"), optional: true);
+            // CUSA00900's add-on (SPEXPANSIONDLC03, 1 MiB) is only an unlock: the 1.09 update carries
+            // The Old Hunters' data, and the engine reports the add-on installed when the switch is on.
+            else if (r.Title == "CUSA00900")
+                Add(Health.Good, L.T("The Old Hunters comes with update 1.09 on this edition, and Lantern Engine unlocks it: nothing to add."), optional: true);
             else
                 Add(Health.Good, L.T("No add-ons found. Only needed to play The Old Hunters with this edition: dump the add-on from your PS4 too, then choose its folder here. You can skip this."), optional: true);
             if (!dlcEnabled)

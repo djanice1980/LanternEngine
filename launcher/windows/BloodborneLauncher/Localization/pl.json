@@ -1359,7 +1359,7 @@
   "Use a shader cache": "Użyj pamięci podręcznej shaderów",
   "Shader cache|*.zip|All files|*.*": "Pamięć podręczna shaderów|*.zip|Wszystkie pliki|*.*",
   "Replace your shader cache?": "Zastąpić twoją pamięć podręczną shaderów?",
-  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak).": "Twoja ma potoki: {0}; zostanie zachowana jako kopia zapasowa (user\\cache\\CUSA03173.bak).",
+  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\shaders.bak).": "Twoja ma potoki: {0}; zostanie zachowana jako kopia zapasowa (user\\cache\\shaders.bak).",
   "Shader cache: {0} pipelines taken; the game loads them at the next start.": "Pamięć podręczna shaderów: przejęto potoki: {0}; gra wczyta je przy następnym uruchomieniu.",
   "Shader cache not used": "Nie użyto pamięci podręcznej shaderów",
   "This file doesn't fit: ": "Ten plik nie pasuje: ",

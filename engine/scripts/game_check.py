@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""The game files bbport runs: Bloodborne CUSA03173 with the 1.09 update merged in.
+"""The game files bbport runs: Bloodborne CUSA03173 or CUSA00900 with the 1.09 update merged in
+(their 1.09 executables are byte-identical).
 
 Other versions start and then fail inside the game's code (the base game 1.00 faults at guest
 offset 0x20348b8): hooks and patches use the addresses of this one executable. The check compares
@@ -85,8 +86,8 @@ def explain(kind, title, version):
                           'game folder, replacing files (eboot.bin and sce_sys too).',
         'wrong_eboot': f'{found} param.sfo is from 1.09 but eboot.bin is not: copy eboot.bin from '
                        'the dumped 1.09 update into the game folder, replacing the old one.',
-        'other_title': f'{found} Only Bloodborne {SUPPORTED_TITLE} with update 1.09 is supported '
-                       'for now; other editions and regions have a different executable.',
+        'other_title': f'{found} Only Bloodborne {SUPPORTED_TITLE} or CUSA00900 with update 1.09 is '
+                       'supported for now; other editions and regions have a different executable.',
         'unreadable': f'{found} eboot.bin could not be read as a decrypted PS4 executable: dump '
                       'the game and the 1.09 update again.',
     }[kind]

@@ -1359,7 +1359,7 @@
   "Use a shader cache": "使用着色器缓存",
   "Shader cache|*.zip|All files|*.*": "着色器缓存|*.zip|所有文件|*.*",
   "Replace your shader cache?": "替换当前着色器缓存？",
-  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak).": "当前缓存有 {0} 条管线，将保留备份（user\\cache\\CUSA03173.bak）。",
+  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\shaders.bak).": "当前缓存有 {0} 条管线，将保留备份（user\\cache\\shaders.bak）。",
   "Shader cache: {0} pipelines taken; the game loads them at the next start.": "着色器缓存：已导入 {0} 条管线，游戏将在下次启动时加载。",
   "Shader cache not used": "未使用着色器缓存",
   "This file doesn't fit: ": "此文件不兼容：",

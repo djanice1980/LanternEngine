@@ -1359,7 +1359,7 @@
   "Use a shader cache": "Використати кеш шейдерів",
   "Shader cache|*.zip|All files|*.*": "Кеш шейдерів|*.zip|Усі файли|*.*",
   "Replace your shader cache?": "Замінити ваш кеш шейдерів?",
-  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak).": "У вашому конвеєрів: {0}; його буде збережено як резервну копію (user\\cache\\CUSA03173.bak).",
+  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\shaders.bak).": "У вашому конвеєрів: {0}; його буде збережено як резервну копію (user\\cache\\shaders.bak).",
   "Shader cache: {0} pipelines taken; the game loads them at the next start.": "Кеш шейдерів: отримано конвеєрів: {0}; гра завантажить їх під час наступного запуску.",
   "Shader cache not used": "Кеш шейдерів не використано",
   "This file doesn't fit: ": "Цей файл не підходить: ",

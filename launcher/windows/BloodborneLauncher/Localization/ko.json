@@ -1359,7 +1359,7 @@
   "Use a shader cache": "셰이더 캐시 사용",
   "Shader cache|*.zip|All files|*.*": "셰이더 캐시|*.zip|모든 파일|*.*",
   "Replace your shader cache?": "셰이더 캐시를 대체할까요?",
-  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak).": "현재 캐시에는 파이프라인 {0}개가 있으며, 백업으로 보관됩니다(user\\cache\\CUSA03173.bak).",
+  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\shaders.bak).": "현재 캐시에는 파이프라인 {0}개가 있으며, 백업으로 보관됩니다(user\\cache\\shaders.bak).",
   "Shader cache: {0} pipelines taken; the game loads them at the next start.": "셰이더 캐시: 파이프라인 {0}개를 가져왔습니다. 다음 시작 시 게임이 불러옵니다.",
   "Shader cache not used": "셰이더 캐시를 사용하지 않음",
   "This file doesn't fit: ": "이 파일은 맞지 않습니다: ",

@@ -18,6 +18,39 @@ def log(text):
     print(text, flush=True)
 
 
+# Every edition whose executable is the verified 1.09 code (CUSA03173, and CUSA00900, whose 1.09
+# executable is byte-identical) runs the same shaders, so they keep one cache folder: CACHE_NAME,
+# as in start/main.cpp (kGpuCacheName) and src/probe.c. The shipped shader catalogs and the catalogs
+# players share still name their folder CATALOG_NAME.
+CACHE_NAME = 'shaders'
+CATALOG_NAME = 'CUSA03173'
+OLD_NAMES = ('CUSA03173', 'CUSA00900')
+
+
+def cache_folder(catalog_name):
+    """The cache folder a shader catalog's folder is seeded into."""
+    return CACHE_NAME if catalog_name == CATALOG_NAME else catalog_name
+
+
+def move_old_cache(cache):
+    """A cache kept under its title ID before the shared one (CUSA03173's first, else CUSA00900's)
+    moved to CACHE_NAME, with its driver cache and tone curve cache; only while there is none."""
+    if (cache / CACHE_NAME).exists():
+        return
+    for old in OLD_NAMES:
+        if not (cache / old).is_dir():
+            continue
+        try:
+            for suffix in ('', '-scene-curve', '.vkcache'):
+                if (cache / (old + suffix)).exists() and not (cache / (CACHE_NAME + suffix)).exists():
+                    (cache / (old + suffix)).rename(cache / (CACHE_NAME + suffix))
+        except OSError as error:
+            log(f'GPU cache: {old} not moved to {CACHE_NAME}: {error}')
+            return
+        log(f'GPU cache: {old} moved to {CACHE_NAME} (one cache for every 1.09 edition)')
+        return
+
+
 def lab_run(lab, *args):
     """bb-shader-lab's exit code and output (its log lines on stderr pass through)."""
     env = dict(os.environ)
@@ -128,7 +161,7 @@ def seed(cache, catalogs, game, eboot, lab):
             by_game.setdefault(sub.name, []).append(sub)
     present = gpu_vendors()
     for name, candidates in sorted(by_game.items()):
-        target = cache / name
+        target = cache / cache_folder(name)
         vendor = cache_vendor(target) or next((v for v in (0x10DE, 0x1002, 0x8086) if v in present), 0)
         catalog = next((c for c in candidates if vendor and catalog_vendor(c) == vendor), None)
         if catalog is None:
@@ -136,7 +169,7 @@ def seed(cache, catalogs, game, eboot, lab):
         if not target.exists():
             target.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(catalog / 'profile.bin', target / 'profile.bin')
-            log(f"GPU cache {catalog.name}: first start; the shader catalog's GPU profile used until the engine checks it")
+            log(f"GPU cache {target.name}: first start; the shader catalog's GPU profile used until the engine checks it")
         if not (target / 'profile.bin').is_file():
             continue
         files = [p for p in catalog.iterdir()]
@@ -146,10 +179,10 @@ def seed(cache, catalogs, game, eboot, lab):
         code, output = lab_run(lab, '--seed-cache', catalog, target, game, eboot)
         first = line_after(output, 'Shader catalog:')
         if first is not None:
-            log(f'GPU cache {catalog.name}: {first}')
+            log(f'GPU cache {target.name}: {first}')
         last = line_after(output, 'Shader cache:')
         if code == 0 and last is not None:
-            log(f'GPU cache {catalog.name}: {last}')
+            log(f'GPU cache {target.name}: {last}')
         marker.write_text(f'{code}\n')
 
 
@@ -176,6 +209,7 @@ if __name__ == '__main__':
             legacy = 'gpu ' + old
     except OSError:
         pass
+    move_old_cache(a.cache)
     reset_stale(a.cache, identity, legacy, lab)
     if a.game:
         seed(a.cache, a.engine / 'shader-catalog', a.game, a.out / 'eboot.elf', lab)

@@ -938,6 +938,16 @@ int main(int argc, char **argv) {
         sfo_value(sfo,"TITLE",title,sizeof(title),NULL);
         sfo_value(sfo,"TITLE_ID",serial,sizeof(serial),NULL);
         sfo_value(sfo,"ATTRIBUTE",NULL,0,&attributes);
+        /* The serial names the shader and pipeline cache folder. Every edition whose executable is
+           the verified 1.09 code (the start programs set BB_ENGINE_IMAGE_SHA256 only then: CUSA00900
+           with update 1.09 is byte-identical to CUSA03173 1.09) runs the same shaders, so they
+           share one, "shaders" (start/main.cpp kGpuCacheName, scripts/gpu_cache.py CACHE_NAME:
+           the shader catalogs are seeded into it and older caches moved there). */
+        const char *verified=getenv("BB_ENGINE_IMAGE_SHA256");
+        if (verified && *verified) {
+            printf("GPU cache: %s runs the 1.09 code; shader cache \"shaders\"\n",serial);
+            snprintf(serial,sizeof(serial),"%s","shaders");
+        }
         uint64_t sdk=0;
         if (procparam) memcpy(&sdk,image+procparam+16,8);
         BbGpuConfig gpu={title,serial,user_dir ? user_dir : "user",(uint32_t)sdk,attributes,1920,1080};

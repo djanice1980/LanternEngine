@@ -15,7 +15,13 @@ namespace BloodborneLauncher.Core
     /// </summary>
     public static class ShaderCacheShare
     {
-        private const string Game = "CUSA03173";
+        /// <summary>This PC's cache folder in <see cref="CacheDir"/>: one for every edition whose
+        /// executable is the 1.09 code (start\main.cpp kGpuCacheName).</summary>
+        public const string Folder = "shaders";
+
+        /// <summary>The folder inside the files players share, as every Lantern Engine launcher
+        /// writes and reads them.</summary>
+        private const string Archived = "CUSA03173";
 
         public static string CacheDir => Path.Combine(Paths.PortDir, "user", "cache");
 
@@ -65,12 +71,12 @@ namespace BloodborneLauncher.Core
         /// pipelines in it. Takes seconds: call it off the UI thread.</summary>
         public static int Export(string zip)
         {
-            var folder = Path.Combine(CacheDir, Game);
+            var folder = Path.Combine(CacheDir, Folder);
             if (Pipelines(folder) == 0) throw new InvalidOperationException("there is no shader cache yet: play for a while first");
             var work = Path.Combine(Path.GetTempPath(), "lantern-catalog-" + Guid.NewGuid().ToString("N"));
             try
             {
-                var catalog = Path.Combine(work, Game);
+                var catalog = Path.Combine(work, Archived);
                 var (code, output) = RunLab("--export-catalog", folder, catalog);
                 var count = Pipelines(catalog);
                 if (code != 0 || count == 0)
@@ -91,7 +97,7 @@ namespace BloodborneLauncher.Core
         {
             using var archive = ZipFile.OpenRead(zip);
             return archive.GetEntry("engine.txt") == null &&
-                   archive.Entries.Any(e => e.FullName.Replace('\\', '/') == Game + "/files.txt");
+                   archive.Entries.Any(e => e.FullName.Replace('\\', '/') == Archived + "/files.txt");
         }
 
         /// <summary>Merges the catalog in <paramref name="zip"/> into this cache, the shaders' code
@@ -99,7 +105,7 @@ namespace BloodborneLauncher.Core
         /// minute: call it off the UI thread. Throws with the reason when it doesn't fit.</summary>
         public static int Merge(string zip, string gameDir)
         {
-            var folder = Path.Combine(CacheDir, Game);
+            var folder = Path.Combine(CacheDir, Folder);
             // The engine writes this GPU's profile at its first start: until then nothing says
             // which kind of graphics card the shaders are for.
             if (!File.Exists(Path.Combine(folder, "profile.bin")))
@@ -116,7 +122,7 @@ namespace BloodborneLauncher.Core
                     foreach (var entry in archive.Entries)
                     {
                         var name = entry.FullName.Replace('\\', '/');
-                        if (!name.StartsWith(Game + "/", StringComparison.Ordinal) || entry.Name.Length == 0) continue;
+                        if (!name.StartsWith(Archived + "/", StringComparison.Ordinal) || entry.Name.Length == 0) continue;
                         var target = Path.GetFullPath(Path.Combine(work, name));
                         if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase)) continue; // outside the folder
                         Directory.CreateDirectory(Path.GetDirectoryName(target)!);
@@ -124,7 +130,7 @@ namespace BloodborneLauncher.Core
                     }
                 }
                 var before = Pipelines(folder);
-                var (code, output) = RunLab("--seed-cache", Path.Combine(work, Game), folder, gameDir, eboot);
+                var (code, output) = RunLab("--seed-cache", Path.Combine(work, Archived), folder, gameDir, eboot);
                 if (code == 5) throw new InvalidOperationException("it was made on another kind of graphics card, which compiles shaders differently");
                 if (code != 0) throw new InvalidOperationException("the shader lab could not use it: " + Line(output, "Shader catalog:"));
                 return Math.Max(0, Pipelines(folder) - before);
@@ -136,7 +142,7 @@ namespace BloodborneLauncher.Core
         }
 
         /// <summary>Replaces the cache with the one in <paramref name="zip"/>, a whole cache saved by a
-        /// launcher before 0.9.37 beta 4 (the old one kept as CUSA03173.bak); the number of pipelines
+        /// launcher before 0.9.37 beta 4 (the old one kept as shaders.bak); the number of pipelines
         /// taken. Throws with the reason when it doesn't fit.</summary>
         public static int Import(string zip)
         {
@@ -148,12 +154,12 @@ namespace BloodborneLauncher.Core
             if (theirs.Length == 0 || theirs != ours)
                 throw new InvalidOperationException("it was made by another engine version's shader compiler; both players need the same version");
             var entries = archive.Entries
-                .Where(e => e.FullName.StartsWith(Game + "/", StringComparison.Ordinal) && e.Name.Length > 0 && Shared(e.Name))
+                .Where(e => e.FullName.StartsWith(Archived + "/", StringComparison.Ordinal) && e.Name.Length > 0 && Shared(e.Name))
                 .ToList();
             var count = entries.Count(e => e.Name.EndsWith(".key", StringComparison.Ordinal));
             var profile = entries.FirstOrDefault(e => e.Name == "profile.bin");
             if (count == 0 || profile == null) throw new InvalidOperationException("the file has no shaders in it");
-            var folder = Path.Combine(CacheDir, Game);
+            var folder = Path.Combine(CacheDir, Folder);
             var mine = Path.Combine(folder, "profile.bin");
             if (File.Exists(mine))
             {
@@ -163,7 +169,7 @@ namespace BloodborneLauncher.Core
                 if (!copy.ToArray().AsSpan().SequenceEqual(File.ReadAllBytes(mine)))
                     throw new InvalidOperationException("it was made on another kind of graphics card or driver, which compiles shaders differently");
             }
-            var backup = Path.Combine(CacheDir, Game + ".bak");
+            var backup = Path.Combine(CacheDir, Folder + ".bak");
             if (Directory.Exists(backup)) Directory.Delete(backup, recursive: true);
             if (Directory.Exists(folder)) Directory.Move(folder, backup);
             Directory.CreateDirectory(folder);

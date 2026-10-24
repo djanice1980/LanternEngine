@@ -1,6 +1,6 @@
 # Lantern Engine
 
-The engine of Lantern Engine: it runs your own copy of *Bloodborne* (CUSA03173, update 1.09) on a
+The engine of Lantern Engine: it runs your own copy of *Bloodborne* (CUSA03173 or CUSA00900, update 1.09) on a
 Windows or Linux PC. The game's own x86-64 code runs directly on the CPU, a runtime written for this
 one game stands in for the PS4's system libraries, and the game's graphics are translated to Vulkan.
 The launcher that starts it is in `../launcher`.

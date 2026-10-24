@@ -1359,7 +1359,7 @@
   "Use a shader cache": "Bir gölgelendirici önbelleği kullan",
   "Shader cache|*.zip|All files|*.*": "Gölgelendirici önbelleği|*.zip|Tüm dosyalar|*.*",
   "Replace your shader cache?": "Gölgelendirici önbelleğiniz değiştirilsin mi?",
-  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\CUSA03173.bak).": "Sizinkinde {0} hat var; yedek olarak saklanır (user\\cache\\CUSA03173.bak).",
+  "Yours has {0} pipelines; it is kept as a backup (user\\cache\\shaders.bak).": "Sizinkinde {0} hat var; yedek olarak saklanır (user\\cache\\shaders.bak).",
   "Shader cache: {0} pipelines taken; the game loads them at the next start.": "Gölgelendirici önbelleği: {0} hat alındı; oyun onları sonraki başlatmada yükler.",
   "Shader cache not used": "Gölgelendirici önbelleği kullanılmadı",
   "This file doesn't fit: ": "Bu dosya uymuyor: ",
