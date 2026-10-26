@@ -13,8 +13,10 @@ when the file moves); --uninstall removes them, PALEBLOOD_NO_MENU=1 leaves the m
     ./Paleblood-Engine-*.AppImage --play /path/to/CUSA00900
 The tar.gz package below keeps everything in its own folder instead.
 
-Needs: a Vulkan 1.3 GPU driver (Mesa RADV for AMD, NVIDIA's own driver, Intel ANV), glibc 2.38 or
-later (Ubuntu 24.04, Debian 13, Fedora 39, Arch, SteamOS 3.6, Bazzite), Python 3, X11 or Wayland.
+Needs: a Vulkan 1.3 GPU driver (Mesa RADV for AMD, NVIDIA's own driver, Intel ANV), glibc 2.39 or
+later (Ubuntu 24.04, Debian 13, Fedora 40, Arch, SteamOS 3.6, Bazzite), Python 3, X11 or Wayland.
+Any x86-64 CPU: the programs are built for plain x86-64 in an Ubuntu 24.04 container
+(packaging/linux/release-docker.sh), so a Steam Deck's Zen 2 runs them.
 
 Start: open "Lantern Engine" (the launcher, the same as on Windows): pick the game folder (the
 one with eboot.bin and sce_module), then Play. If your file manager does not run it, run

@@ -50,6 +50,8 @@ RUN git clone -q --depth 1 -b release-3.4.18 https://github.com/libsdl-org/SDL.g
     && cmake -S sdl -B sdl/b -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/deps \
        -DSDL_SHARED=ON -DSDL_STATIC=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF \
     && cmake --build sdl/b && cmake --install sdl/b && rm -rf /deps/*
+# FFmpeg's build is make-driven (make is in setup-ubuntu.sh's list; it was missing here).
+RUN apt-get update && apt-get install -y --no-install-recommends make && rm -rf /var/lib/apt/lists/*
 # FFmpeg: only what the game's movies need (H.264/HEVC video, AAC audio in MP4), no system
 # libraries.
 RUN git clone -q --depth 1 -b n7.1.1 https://github.com/FFmpeg/FFmpeg.git ffmpeg && cd ffmpeg \
@@ -59,4 +61,15 @@ RUN git clone -q --depth 1 -b n7.1.1 https://github.com/FFmpeg/FFmpeg.git ffmpeg
        --enable-decoder=h264,hevc,aac,aac_latm --enable-parser=h264,hevc,aac \
        --enable-demuxer=mov,mpegts,h264,hevc,aac --enable-protocol=file --enable-swscale --enable-swresample \
     && make -j"$(nproc)" && make install && cd / && rm -rf /deps/*
+# miniupnpc (bbnet's port mapping), static as on Windows: its CMake project is a subfolder
+# (setup-ubuntu.sh builds it too; bbnet's CMakeLists requires libminiupnpc.a).
+RUN git clone -q --depth 1 -b miniupnpc_2_2_8 https://github.com/miniupnp/miniupnp.git \
+    && cmake -S miniupnp/miniupnpc -B miniupnp/b $CMAKE_DEPS -DUPNPC_BUILD_STATIC=ON \
+       -DUPNPC_BUILD_SHARED=OFF -DUPNPC_BUILD_TESTS=OFF -DUPNPC_BUILD_SAMPLE=OFF \
+    && cmake --build miniupnp/b && cmake --install miniupnp/b && rm -rf /deps/*
+# Zycore installed beside Zydis: zydis-config.cmake looks for Zycore's own config, which the
+# bundled copy does not install (setup-ubuntu.sh does the same).
+RUN git clone -q --depth 1 -b v4.1.1 --recursive https://github.com/zyantific/zydis.git \
+    && cmake -S zydis/dependencies/zycore -B zydis/zb $CMAKE_DEPS -DZYCORE_BUILD_TESTS=OFF -DZYCORE_BUILD_EXAMPLES=OFF \
+    && cmake --build zydis/zb && cmake --install zydis/zb && rm -rf /deps/*
 WORKDIR /build
