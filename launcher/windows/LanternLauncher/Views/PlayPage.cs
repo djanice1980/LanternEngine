@@ -321,7 +321,11 @@ namespace BloodborneLauncher.Views
             // Windows: Bloodborne.exe, which starts the game with the launcher's settings and waits for
             // it. Elsewhere the launcher itself with --play, which does the same.
             var windows = OperatingSystem.IsWindows();
-            var exe = windows ? Path.Combine(Paths.PortDir, "Bloodborne.exe") : Environment.ProcessPath ?? "";
+            // From the AppImage, the AppImage file itself (APPIMAGE: the runtime's variable): the launcher's
+            // own path is inside a mount that is gone when the AppImage exits.
+            var exe = windows ? Path.Combine(Paths.PortDir, "Bloodborne.exe")
+                : Environment.GetEnvironmentVariable("APPIMAGE") is { Length: > 0 } appImage && File.Exists(appImage) ? appImage
+                : Environment.ProcessPath ?? "";
             if (!File.Exists(exe))
             {
                 Prompt.Tell(L.T("Add to Steam"), L.T("Bloodborne.exe is missing from the Lantern Engine folder: reinstall the package."));

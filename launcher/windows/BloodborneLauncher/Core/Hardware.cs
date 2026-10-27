@@ -19,6 +19,19 @@ namespace BloodborneLauncher.Core
         public sealed record Change(string Label, string From, string To, Action Apply);
 
         public int VramGb => (int)Math.Round(VramBytes / 1073741824.0);
+        /// <summary>A Steam Deck (LCD "Jupiter" or OLED "Galileo", from the firmware's product name): the
+        /// PC memory model crashes the engine at the start there, and FSR 4 is too much for its GPU.</summary>
+        public bool SteamDeck => OperatingSystem.IsLinux() && SteamDeckDmi();
+        public static bool SteamDeckDmi()
+        {
+            try
+            {
+                var product = File.Exists("/sys/devices/virtual/dmi/id/product_name") ? File.ReadAllText("/sys/devices/virtual/dmi/id/product_name").Trim() : "";
+                var vendor = File.Exists("/sys/devices/virtual/dmi/id/board_vendor") ? File.ReadAllText("/sys/devices/virtual/dmi/id/board_vendor").Trim() : "";
+                return product is "Jupiter" or "Galileo" || vendor.Equals("Valve", StringComparison.OrdinalIgnoreCase);
+            }
+            catch { return false; }
+        }
         public bool Rtx => Vendor == "NVIDIA" && Gpu.Contains("RTX", StringComparison.OrdinalIgnoreCase);
         /// <summary>Radeon RX 9000 (RDNA 4): FSR 4 runs natively.</summary>
         public bool Rdna4 => Vendor == "AMD" && System.Text.RegularExpressions.Regex.IsMatch(Gpu, @"RX\s*9\d{3}");
@@ -34,7 +47,7 @@ namespace BloodborneLauncher.Core
         /// <summary>One line for the UI: "NVIDIA GeForce RTX 5060 (8 GB) · AMD Ryzen 5 5600 (12 threads) · 2560 × 1440 at 165 Hz".</summary>
         public string Summary =>
             L.F($"{Gpu}{(VramBytes > 0 ? $" ({VramGb} GB)" : "")} · {Cpu} ({Threads} threads) · ") +
-            (ScreenWidth > 0 ? L.F($"{ScreenWidth} × {ScreenHeight} at {RefreshHz} Hz") : L.T("display unknown"));
+            (ScreenWidth > 0 ? L.F($"{ScreenWidth} × {ScreenHeight} at {RefreshHz} Hz") : L.T("display unknown")) + (SteamDeck ? " · Steam Deck" : "");
 
         private static Hardware? _detected;
         public static Hardware Detect() => _detected ??= Probe();
@@ -236,9 +249,17 @@ namespace BloodborneLauncher.Core
                 changes.Add(new Change(label, Name(names, from), Name(names, to), () => s.Set(key, to)));
             }
 
+            void Flag(string label, string key, bool to)
+            {
+                if (s.Bool(key) == to) return;
+                changes.Add(new Change(label, s.Bool(key) ? L.T("On") : L.T("Off"), to ? L.T("On") : L.T("Off"), () => s.Set(key, to)));
+            }
+
             var tier = GpuTier;
             var dlss = Paths.DlssRuntime != null;
             Ini(L.T("Upscaler"), "upscaler", Rtx && dlss ? "dlss" : Rdna4 ? "fsr4" : "fsr3", Choices.Upscalers);
+            // Steam Deck: the PC memory model (experimental, on by default) stops the engine at the start.
+            if (SteamDeck) Flag(L.T("New memory and translation model"), "exp_guest_in_place", false);
 
             // The output: the display's own size, by name where it is one of the choices, else
             // "Display (auto)"; 1920 x 1080 when the display is unknown.

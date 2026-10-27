@@ -11,7 +11,13 @@ adds it to the applications menu (an entry and icon for the file where it is, ke
 when the file moves); --uninstall removes them, PALEBLOOD_NO_MENU=1 leaves the menu alone. Settings, saves, mods, logs and the shader cache go to
 ~/.local/share/paleblood-engine (or $PALEBLOOD_DATA_DIR). From a terminal:
     ./Paleblood-Engine-*.AppImage --play /path/to/CUSA00900
-The tar.gz package below keeps everything in its own folder instead.
+--play on its own starts the game through the launcher with its saved game folder and settings,
+without showing it (what Play > Add to Steam sets up). The tar.gz package below keeps everything
+in its own folder instead.
+
+Steam Deck: works from the AppImage. Keep Engine > "New memory and translation model" off (the
+launcher's recommended settings and its default do that on a Deck: on, the engine stops at the
+start) and the upscaler at FSR 3.
 
 Needs: a Vulkan 1.3 GPU driver (Mesa RADV for AMD, NVIDIA's own driver, Intel ANV), glibc 2.39 or
 later (Ubuntu 24.04, Debian 13, Fedora 40, Arch, SteamOS 3.6, Bazzite), Python 3, X11 or Wayland.

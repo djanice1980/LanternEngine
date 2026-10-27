@@ -32,7 +32,13 @@ export BB_DATA_DIR=$data
 export BB_OUT_DIR=$data/engine/out
 export BB_CONFIG=$data/lantern.ini
 export BB_GPU_USER_DIR=$data/user
-[[ -f $BB_CONFIG ]] || cp "$pkg/lantern.ini" "$BB_CONFIG"
+if [[ ! -f $BB_CONFIG ]]; then
+    cp "$pkg/lantern.ini" "$BB_CONFIG"
+    # A Steam Deck (the firmware's product name): FSR 3 from the start, FSR 4 is too much for its GPU.
+    case $(cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null) in
+        Jupiter|Galileo) sed -i 's/^upscaler=.*/upscaler=fsr3/' "$BB_CONFIG" ;;
+    esac
+fi
 # The applications menu: each start writes the menu entry and icon for this AppImage file where it
 # is now (APPIMAGE, the runtime's variable), so the entry follows the file when it moves and a
 # fresh download is in the menu after its first start. PALEBLOOD_NO_MENU=1 leaves the menu alone;
@@ -66,18 +72,16 @@ if [[ ${1:-} == --uninstall ]]; then
 fi
 if [[ ${PALEBLOOD_NO_MENU:-0} != 1 ]]; then install_menu; fi
 if [[ ${1:-} == --install ]]; then exit 0; fi
+# --play <game folder> [bb-probe options]: the game straight from a terminal, without the launcher
+# (the engine's settings from lantern.ini alone). --play on its own, as the Steam shortcut the
+# launcher makes passes it: the launcher starts the game with its saved game folder and settings
+# and stays out of sight, closing when the game ends.
 if [[ ${1:-} == --play ]]; then
-    shift
-    remembered=$data/engine/out/game_dir.txt
     game=${BB_GAME_DIR:-}
-    if [[ $# -gt 0 && -f $1/eboot.bin ]]; then game=$(cd -- "$1" && pwd); shift; fi
-    if [[ -z $game && -f $remembered ]]; then game=$(<"$remembered"); fi
-    if [[ -z $game || ! -f $game/eboot.bin ]]; then
-        echo 'No game folder: pass it after --play (the folder with eboot.bin), e.g. --play ~/Games/CUSA00900' >&2
-        exit 1
+    if [[ $# -gt 1 && -f $2/eboot.bin ]]; then game=$(cd -- "$2" && pwd); shift 2; elif [[ -n $game ]]; then shift; fi
+    if [[ -n $game && -f $game/eboot.bin ]]; then
+        exec "$pkg/engine/out/bb-start" --game-dir "$game" "$@"
     fi
-    printf '%s\n' "$game" > "$remembered"
-    exec "$pkg/engine/out/bb-start" --game-dir "$game" "$@"
 fi
 cd "$pkg"
 exec "$pkg/Lantern Engine" "$@"

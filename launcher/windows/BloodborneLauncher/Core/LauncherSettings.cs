@@ -79,7 +79,8 @@ namespace BloodborneLauncher.Core
             ["exp_async_pipelines"] = true,
             ["exp_fast_loading"] = true,
             ["exp_hot_pages"] = true,
-            ["exp_guest_in_place"] = true,
+            // Off on a Steam Deck: the engine stops at the start with it there.
+            ["exp_guest_in_place"] = !Hardware.SteamDeckDmi(),
             ["exp_native_calls"] = true,
             ["exp_sfx_workaround"] = false,
             ["exp_camera_easing"] = false,
@@ -180,7 +181,7 @@ namespace BloodborneLauncher.Core
         private static readonly (string Key, bool Value)[] PerfDefaults =
         {
             ("exp_frame_pacing", true), ("exp_thread_priority", true), ("exp_sleep_spin", true),
-            ("exp_fast_loading", true), ("exp_hot_pages", true), ("exp_guest_in_place", true),
+            ("exp_fast_loading", true), ("exp_hot_pages", true), ("exp_guest_in_place", !Hardware.SteamDeckDmi()),
             ("exp_native_calls", true), ("legacy_shaders", false),
         };
 
