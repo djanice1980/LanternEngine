@@ -257,9 +257,12 @@ namespace BloodborneLauncher.Core
 
             var tier = GpuTier;
             var dlss = Paths.DlssRuntime != null;
-            Ini(L.T("Upscaler"), "upscaler", Rtx && dlss ? "dlss" : Rdna4 ? "fsr4" : "fsr3", Choices.Upscalers);
+            // A Steam Deck runs FSR 4 (the shader path) well with FSR 3.1 frame generation: found on a
+            // Deck OLED at its own 1280x800 with a 90 FPS cap.
+            Ini(L.T("Upscaler"), "upscaler", Rtx && dlss ? "dlss" : Rdna4 || SteamDeck ? "fsr4" : "fsr3", Choices.Upscalers);
             // Steam Deck: the PC memory model (experimental, on by default) stops the engine at the start.
             if (SteamDeck) Flag(L.T("New memory and translation model"), "exp_guest_in_place", false);
+            if (SteamDeck) Ini(L.T("Frame generation"), "frame_gen", "fsr3", Choices.FrameGeneration, "off");
 
             // The output: the display's own size, by name where it is one of the choices, else
             // "Display (auto)"; 1920 x 1080 when the display is unknown.
@@ -271,8 +274,8 @@ namespace BloodborneLauncher.Core
             var height = Choices.OutputSize(output).H;
             var preset = (height, tier) switch
             {
-                (<= 720, Tier.Low) => 1,
-                (<= 720, _) => 0,
+                (<= 800, Tier.Low) => 1,   // 720, and the Steam Deck's 800
+                (<= 800, _) => 0,
                 (<= 1080, Tier.High) => 0,
                 (<= 1080, Tier.Mid) => 1,
                 (<= 1080, _) => 2,
@@ -304,6 +307,9 @@ namespace BloodborneLauncher.Core
                 StyleFps => RefreshHz >= 143 ? "144" : RefreshHz >= 119 ? "120" : RefreshHz >= 89 ? "90" : "60",
                 _ => fps,
             };
+            // A Steam Deck: 90 on the OLED's 90 Hz screen (FSR 4 with frame generation holds it there),
+            // 60 on the LCD's; Best picture keeps 60.
+            if (SteamDeck && style != StyleQuality) fps = RefreshHz >= 89 ? "90" : "60";
             Setting(L.T("Frame rate"), "fps_mode", fps, Choices.FpsModes);
 
             // Character motion vectors cost about 10%: on for the biggest GPUs, off for the smallest.

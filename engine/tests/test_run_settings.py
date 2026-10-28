@@ -43,7 +43,7 @@ class RestartResolutionTests(unittest.TestCase):
                 'stage=int(os.environ.get("BB_TEST_STAGE", "0"))\n'
                 'with (config.parent/"environments").open("a") as f:\n'
                 '    f.write(json.dumps({key:os.environ.get(key) for key in '
-                '("BB_RENDER_RES", "BB_OUTPUT_RES", "BB_AUTO_RENDER_RES")})+"\\n")\n'
+                '("BB_RENDER_RES", "BB_OUTPUT_RES", "BB_AUTO_RENDER_RES", "BB_UI_SIZE")})+"\\n")\n'
                 'if stage<2:\n'
                 '    config.write_text("upscaler=fsr3\\npreset=4\\noutput_res="+'
                 '("1280x720" if stage==0 else "1920x1080")+"\\n")\n'
@@ -52,7 +52,7 @@ class RestartResolutionTests(unittest.TestCase):
             probe.chmod(0o755)
             env = dict(os.environ, BB_PREBUILT='1', BB_PROBE=str(probe), PYTHON=str(python),
                        BB_DATA_DIR=str(data), BB_CONFIG=str(config), BB_GAME_DIR=str(data))
-            for key in ('BB_RENDER_RES', 'BB_OUTPUT_RES', 'BB_AUTO_RENDER_RES', 'BB_TEST_STAGE'):
+            for key in ('BB_RENDER_RES', 'BB_OUTPUT_RES', 'BB_AUTO_RENDER_RES', 'BB_UI_SIZE', 'BB_TEST_STAGE'):
                 env.pop(key, None)
             env.pop('BB_LIVE_RES', None)
             if explicit:
@@ -74,6 +74,17 @@ class RestartResolutionTests(unittest.TestCase):
         self.assertEqual([row['BB_RENDER_RES'] for row in rows], ['852x480', '640x360', None])
         self.assertEqual([row['BB_OUTPUT_RES'] for row in rows], ['1280x720', '1280x720', None])
         self.assertEqual([row['BB_AUTO_RENDER_RES'] for row in rows], ['1', '1', None])
+        self.assertEqual([row['BB_UI_SIZE'] for row in rows], [None] * 3)   # 16:9: the stage itself
+
+    def test_a_16_10_output_widens_the_ui_viewport_for_the_renderer(self):
+        # The Steam Deck's own 1280x800: the game's UI viewport becomes 1920x1200 (patches.py
+        # ui_size) and the GPU library must compose the UI by it, or the picture sits in a corner.
+        rows = self.run_restarts(ini_extra='output_res=1280x800\n')
+        self.assertEqual([row['BB_OUTPUT_RES'] for row in rows], ['1280x800', '1280x720', None])
+        self.assertEqual([row['BB_RENDER_RES'] for row in rows], ['852x532', '640x360', None])
+        self.assertEqual([row['BB_UI_SIZE'] for row in rows], ['1920x1200', None, None])
+        # Widescreen off: the 16:9 stage alone, as the game draws it.
+        self.assertIsNone(self.run_restarts(ini_extra='output_res=1280x800\nwidescreen=0\n')[0]['BB_UI_SIZE'])
 
     def test_live_resolution_keeps_guest_sizes_native(self):
         rows = self.run_restarts(live=True)

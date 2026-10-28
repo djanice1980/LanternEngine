@@ -34,9 +34,13 @@ export BB_CONFIG=$data/lantern.ini
 export BB_GPU_USER_DIR=$data/user
 if [[ ! -f $BB_CONFIG ]]; then
     cp "$pkg/lantern.ini" "$BB_CONFIG"
-    # A Steam Deck (the firmware's product name): FSR 3 from the start, FSR 4 is too much for its GPU.
+    # A Steam Deck (the firmware's product name): its own 1280x800 screen, FSR 4 with FSR 3.1 frame
+    # generation from the start (what plays well on a Deck OLED with a 90 FPS cap; the launcher's
+    # recommended settings choose the same).
     case $(cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null) in
-        Jupiter|Galileo) sed -i 's/^upscaler=.*/upscaler=fsr3/' "$BB_CONFIG" ;;
+        Jupiter|Galileo)
+            sed -i 's/^upscaler=.*/upscaler=fsr4/; s/^output_res=.*/output_res=1280x800/; s/^frame_gen=.*/frame_gen=fsr3/' "$BB_CONFIG"
+            grep -q '^frame_gen=' "$BB_CONFIG" || printf 'frame_gen=fsr3\n' >> "$BB_CONFIG" ;;
     esac
 fi
 # The applications menu: each start writes the menu entry and icon for this AppImage file where it

@@ -58,6 +58,9 @@
 
         public static readonly Choice[] OutputResolutions =
         {
+            // The Steam Deck's screen is 1280x800 (16:10): the camera widens to it (Widescreen, on by
+            // default) and the 16:9 HUD sits in the middle. 720 is the 16:9 picture on it.
+            new("1280 × 800 (Steam Deck, 16:10)", "1280x800"),
             new(L.T("1280 × 720 (Steam Deck)"), "1280x720"),
             new("1600 × 900", "1600x900"),
             new("1920 × 1080", "1920x1080"),

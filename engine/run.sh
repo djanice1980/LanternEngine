@@ -119,6 +119,20 @@ elif [[ -n ${scaled_output:-} ]]; then
 fi
 "$PYTHON" scripts/patches.py --out "$out" --fps "$fps" --extra "${BB_PATCHES:-}" --settings "$BB_CONFIG" --game-dir "$game" --render-res "${BB_RENDER_RES:-}" --output-res "${BB_OUTPUT_RES:-}" \
     --patches-dir "${BB_PATCHES_DIR:-$data/patches}" --patches-config "${BB_PATCHES_CONFIG:-$data/patches.json}"
+# The UI viewport the patches gave the game (patches-info.json ui_size): 1920x1080, or with
+# Widescreen on a screen of another shape that shape around it (1920x1200 at 16:10, the Steam
+# Deck's own 1280x800; 2520x1080 at 21:9). The GPU library composes the UI by it (BB_UI_SIZE), as
+# run_windows.py and bb-start.exe pass it on Windows. Without it the game drew its stage into
+# the widened viewport while the renderer kept the 16:9 one: the picture sat off in a corner.
+# Bash builtins only (the AppImage's PATH has no sed or grep); recomputed after each restart.
+ui_size=1920x1080 ui_re='"ui_size": *"([0-9]+x[0-9]+)"'
+if [[ -f $out/patches-info.json && $(<"$out/patches-info.json") =~ $ui_re ]]; then ui_size=${BASH_REMATCH[1]}; fi
+if [[ $ui_size != 1920x1080 ]]; then
+    export BB_UI_SIZE=$ui_size
+    echo "Widescreen: UI viewport $ui_size (the 16:9 stage centred in it)"
+else
+    unset BB_UI_SIZE
+fi
 # The GPU cache as bb-start.exe keeps it on Windows: recompiled by bb-shader-lab when the shader
 # compiler changed, then the shipped shader catalog seeded, so pipelines are built at the start
 # instead of in play. Packages only (packaging/linux/bb-start sets BB_GPU_USER_DIR).
