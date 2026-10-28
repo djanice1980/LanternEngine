@@ -250,7 +250,7 @@ namespace BloodborneLauncher.Core
                 else if (!_iniWarned)
                 {
                     _iniWarned = true;
-                    Log("lantern.ini not written: the engine folder is not set (Settings › Lantern Engine).", LogLevel.Warn);
+                    Log("lantern.ini not written: the engine folder is not set (Settings › Paleblood Engine).", LogLevel.Warn);
                 }
                 Saved?.Invoke();
             }

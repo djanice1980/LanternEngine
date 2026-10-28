@@ -5,7 +5,7 @@
 #
 #   packaging/linux/build.sh <version> [package-template folder] [launcher folder]
 #
-# The package mirrors the Windows one: the launcher ("Lantern Engine", the Avalonia launcher
+# The package mirrors the Windows one: the launcher ("Paleblood Engine", the Avalonia launcher
 # published for linux-x64, when its folder is given), lantern.sh (starts the game from a terminal),
 # lantern.ini (shipped settings, also kept as engine/lantern.default.ini), and engine/ with run.sh,
 # its Python start scripts, the patches and FSR 4 shaders, and engine/out with bb-start, bb-probe,
@@ -72,7 +72,7 @@ find "$root" -name __pycache__ -prune -exec rm -rf {} +
 find "$root" -type d -exec chmod 755 {} +
 find "$root" -type f -exec chmod 644 {} +
 chmod 755 "$root/lantern.sh" "$root/engine/run.sh" "$bin"/bb-* "$bin"/gpu/*.so* "$root"/engine/scripts/*.py
-[[ ! -f "$root/Lantern Engine" ]] || chmod 755 "$root/Lantern Engine"
+[[ ! -f "$root/Paleblood Engine" ]] || chmod 755 "$root/Paleblood Engine"
 # Files checked out on Windows: the scripts need Unix line ends.
 find "$root" -type f \( -name '*.sh' -o -name '*.py' -o -name '*.ini' -o -name '*.txt' -o -name '*.json' \
     -o -name bb-start \) -exec sed -i 's/\r$//' {} +

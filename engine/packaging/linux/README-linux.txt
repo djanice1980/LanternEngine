@@ -3,7 +3,7 @@ Paleblood Engine for Linux (x86-64)
 Paleblood Engine is a changed version of Lantern Engine by Awaken (github.com/Awakenchan/LanternEngine),
 not an official Lantern Engine release: it adds the US edition CUSA00900, one shared shader cache for
 every 1.09 edition, and this Linux package and AppImage built from source. Source and releases:
-github.com/djanice1980/LanternEngine. The launcher inside is still Lantern Engine's.
+github.com/djanice1980/LanternEngine. The launcher is Lantern Engine's, renamed with the fork.
 
 AppImage: put it where it will stay (~/Applications), make it executable (chmod +x
 Paleblood*.AppImage) and run it; it needs FUSE 2 (libfuse.so.2) like every AppImage. Its first start
@@ -30,9 +30,9 @@ later (Ubuntu 24.04, Debian 13, Fedora 40, Arch, SteamOS 3.6, Bazzite), Python 3
 Any x86-64 CPU: the programs are built for plain x86-64 in an Ubuntu 24.04 container
 (packaging/linux/release-docker.sh), so a Steam Deck's Zen 2 runs them.
 
-Start: open "Lantern Engine" (the launcher, the same as on Windows): pick the game folder (the
+Start: open "Paleblood Engine" (the launcher, the same as on Windows): pick the game folder (the
 one with eboot.bin and sce_module), then Play. If your file manager does not run it, run
-    chmod +x "Lantern Engine" lantern.sh engine/out/bb-start
+    chmod +x "Paleblood Engine" lantern.sh engine/out/bb-start
 once in this folder.
 
 From a terminal instead:

@@ -149,7 +149,7 @@ namespace BloodborneLauncher.Core
             else if (!GameCheck.SupportedTitles.Contains(r.Title))
                 Add(Health.Bad, L.F($"This is not Bloodborne ({r.Title}). Choose your Bloodborne folder."));
             else if (FullEditions.Contains(r.Title))
-                Add(Health.Good, L.F($"Edition {r.Title}: every Lantern Engine feature works with it."));
+                Add(Health.Good, L.F($"Edition {r.Title}: every Paleblood Engine feature works with it."));
             else
                 Add(Health.Warning, L.F($"Edition {r.Title}: it starts, but the frame rate, resolution and engine patches are made for CUSA03173, so this edition plays at 30 FPS with the game's own settings. CUSA03173 is the recommended dump."));
 
@@ -332,7 +332,7 @@ namespace BloodborneLauncher.Core
             // CUSA00900's add-on (SPEXPANSIONDLC03, 1 MiB) is only an unlock: the 1.09 update carries
             // The Old Hunters' data, and the engine reports the add-on installed when the switch is on.
             else if (r.Title == "CUSA00900")
-                Add(Health.Good, L.T("The Old Hunters comes with update 1.09 on this edition, and Lantern Engine unlocks it: nothing to add."), optional: true);
+                Add(Health.Good, L.T("The Old Hunters comes with update 1.09 on this edition, and Paleblood Engine unlocks it: nothing to add."), optional: true);
             else
                 Add(Health.Good, L.T("No add-ons found. Only needed to play The Old Hunters with this edition: dump the add-on from your PS4 too, then choose its folder here. You can skip this."), optional: true);
             if (!dlcEnabled)

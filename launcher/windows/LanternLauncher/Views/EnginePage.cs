@@ -30,7 +30,8 @@ namespace BloodborneLauncher.Views
                     AddSwitch(item);
             }
             Group(L.T("About"));
-            Body.Children.Add(Text(L.T("Lantern Engine by Awaken (github.com/Awakenchan/LanternEngine). Free software under the GNU GPL v3 or later ") +
+            Body.Children.Add(Text(L.T("Paleblood Engine, a changed version of Lantern Engine by Awaken (github.com/Awakenchan/LanternEngine); ") +
+                                   L.T("the changes by djanice1980 (github.com/djanice1980/LanternEngine). Free software under the GNU GPL v3 or later ") +
                                    L.T("with additional terms: anything built on it must keep this credit. See NOTICE in the game's folder."), "Faint"));
             ShowChanged();
         }

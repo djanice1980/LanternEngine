@@ -26,9 +26,9 @@ internal sealed class LanternApp : Application
     {
         RequestedThemeVariant = ThemeVariant.Dark;
         Styles.Add(new Avalonia.Themes.Fluent.FluentTheme());
-        Styles.Add(new StyleInclude(new Uri("avares://Lantern Engine/"))
+        Styles.Add(new StyleInclude(new Uri("avares://Paleblood Engine/"))
         {
-            Source = new Uri("avares://Lantern Engine/Themes/Styles.axaml"),
+            Source = new Uri("avares://Paleblood Engine/Themes/Styles.axaml"),
         });
     }
 
@@ -77,7 +77,7 @@ internal sealed class LanternApp : Application
             desktop.MainWindow = window;
             if (failed.Length > 0)
                 window.Opened += (_, _) => Dispatcher.UIThread.Post(() =>
-                    Views.Prompt.Tell("Lantern Engine", "These old files could not be removed (in use?) and can be deleted by hand:\n\n" +
+                    Views.Prompt.Tell("Paleblood Engine", "These old files could not be removed (in use?) and can be deleted by hand:\n\n" +
                                                         string.Join("\n", failed)), DispatcherPriority.Background);
         }
         base.OnFrameworkInitializationCompleted();

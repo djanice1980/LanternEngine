@@ -327,7 +327,7 @@ int Main(std::vector<std::wstring> arguments) {
     }
     fs::create_directories(out);
     if (Lower(Utf8(folders.package)).find("onedrive") != std::string::npos)
-        Log("Performance: this Lantern Engine folder is synced by OneDrive (%s); OneDrive uploads its logs and "
+        Log("Performance: this Paleblood Engine folder is synced by OneDrive (%s); OneDrive uploads its logs and "
             "shader cache while you play. A folder outside OneDrive (C:\\Games, for example) avoids that",
             Utf8(folders.package).c_str());
     {

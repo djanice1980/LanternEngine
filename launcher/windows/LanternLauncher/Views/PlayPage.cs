@@ -328,7 +328,7 @@ namespace BloodborneLauncher.Views
                 : Environment.ProcessPath ?? "";
             if (!File.Exists(exe))
             {
-                Prompt.Tell(L.T("Add to Steam"), L.T("Bloodborne.exe is missing from the Lantern Engine folder: reinstall the package."));
+                Prompt.Tell(L.T("Add to Steam"), L.T("Bloodborne.exe is missing from the Paleblood Engine folder: reinstall the package."));
                 return;
             }
             if (SteamShortcut.SteamDir() is null)

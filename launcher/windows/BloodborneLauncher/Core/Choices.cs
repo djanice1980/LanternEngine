@@ -291,7 +291,7 @@
 
         public static readonly Choice[] LaunchMethods =
         {
-            new("Lantern Engine", "windows", L.T("Prepares mods and patches, then starts the engine (out\\bb-probe.exe)")),
+            new("Paleblood Engine", "windows", L.T("Prepares mods and patches, then starts the engine (out\\bb-probe.exe)")),
             new(L.T("Custom command"), "custom", L.T("Runs a program of your choice with the settings as environment variables")),
         };
 

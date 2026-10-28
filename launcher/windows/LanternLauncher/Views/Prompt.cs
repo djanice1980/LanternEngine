@@ -176,7 +176,7 @@ namespace BloodborneLauncher.Views
                 _card.Margin = new Thickness(24);
                 _window = new Window
                 {
-                    Title = "Lantern Engine",
+                    Title = "Paleblood Engine",
                     SizeToContent = SizeToContent.WidthAndHeight,
                     WindowStartupLocation = WindowStartupLocation.CenterScreen,
                     SystemDecorations = SystemDecorations.None,

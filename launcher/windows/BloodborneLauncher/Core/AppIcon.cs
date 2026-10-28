@@ -141,7 +141,7 @@ namespace BloodborneLauncher.Core
                 icon = Path.Combine(Paths.ConfigDir, "shortcut-icon-" + sign[(sign.IndexOf(':') + 1)..] + ".ico");
                 if (!File.Exists(icon)) File.WriteAllBytes(icon, bytes);
             }
-            var exes = new[] { Environment.ProcessPath, Path.Combine(package, "Lantern Engine.exe"), Path.Combine(package, "Bloodborne.exe") }
+            var exes = new[] { Environment.ProcessPath, Path.Combine(package, Updater.ExeName), Path.Combine(package, "Bloodborne.exe") }
                 .Where(e => e != null && File.Exists(e)).Select(e => Path.GetFullPath(e!)).Distinct(StringComparer.OrdinalIgnoreCase);
             foreach (var exe in exes)
                 LanternRename.Shortcuts.Restyle(LanternRename.Shortcuts.Pointing(exe), icon ?? exe);

@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Lantern Engine launcher on Avalonia: Windows and Linux from one launcher. The logic (Core)
+  <!-- Paleblood Engine launcher (Lantern Engine's, renamed with the fork) on Avalonia: Windows and Linux from one launcher. The logic (Core)
        is the WPF launcher's own files, compiled here too; AVALONIA marks what differs. -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>Lantern Engine</AssemblyName>
+    <AssemblyName>Paleblood Engine</AssemblyName>
     <RootNamespace>BloodborneLauncher</RootNamespace>
     <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
     <!-- Paleblood Engine's own icon: Lantern Engine's NOTICE keeps its icons for its own releases. -->

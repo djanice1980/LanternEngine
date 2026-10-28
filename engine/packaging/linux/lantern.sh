@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Starts Bloodborne with the Lantern Engine from a terminal (Linux package; the launcher, "Lantern
+# Starts Bloodborne with the Lantern Engine from a terminal (Linux package; the launcher, "Paleblood
 # Engine", does the same with its settings).
 #
 #   ./lantern.sh [game folder] [bb-probe options...]

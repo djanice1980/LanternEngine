@@ -179,8 +179,8 @@ namespace BloodborneLauncher
             if (args.Contains("--test-trophy"))
                 TrophyToast.Announce(TrophyTracker.ById[14]);
             ws.Log(Paths.IsPortDir(Paths.PortDir)
-                    ? L.F($"Lantern Engine ready. Engine: {Paths.PortDir}")
-                    : L.T("Lantern Engine ready. Choose the engine folder in Settings."),
+                    ? L.F($"Paleblood Engine ready. Engine: {Paths.PortDir}")
+                    : L.T("Paleblood Engine ready. Choose the engine folder in Settings."),
                 Paths.IsPortDir(Paths.PortDir) ? LogLevel.Good : LogLevel.Warn);
             Dispatcher.UIThread.Post(() =>
             {
@@ -446,7 +446,7 @@ namespace BloodborneLauncher
             grid.Children.Add(_searchArea);
 
             var title = new TextBlock { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, FontSize = 12, IsHitTestVisible = false };
-            var name = new Run("Lantern Engine") { FontWeight = FontWeight.SemiBold };
+            var name = new Run("Paleblood Engine") { FontWeight = FontWeight.SemiBold };
             name.Bind(TextElement.ForegroundProperty, this.GetResourceObservable("TextFillColorPrimaryBrush"));
             _titlePage.Bind(TextElement.ForegroundProperty, this.GetResourceObservable("TextFillColorTertiaryBrush"));
             title.Inlines = new InlineCollection { name, _titlePage };
@@ -556,7 +556,7 @@ namespace BloodborneLauncher
             // Cheats beside Mods & patches, once the engine applies them (as More's Cheats tab).
             if (CheatsPage.Supported)
                 _classicCheats = Item(SymbolRegular.Beaker24, L.T("Cheats"), typeof(CheatsPage));
-            Header(L.T("LANTERN"), new Thickness(18, 18, 0, 6));
+            Header(L.T("PALEBLOOD"), new Thickness(18, 18, 0, 6));
             _classicSettings = Item(SymbolRegular.Settings24, L.T("Settings"), typeof(SettingsPage));
             _classicEngine = Item(SymbolRegular.Wrench24, L.T("Engine switches"), typeof(EnginePage));
             _classicOutput = Item(SymbolRegular.WindowConsole20, L.T("Game output"), typeof(OutputPage));
@@ -881,7 +881,7 @@ namespace BloodborneLauncher
             Dispatcher.UIThread.Post(async () =>
             {
                 if (!IsVisible) ShowLauncher();
-                var answer = Prompt.Choose("Lantern Engine", L.T("The game is still running. Stop it and close the launcher?"),
+                var answer = Prompt.Choose("Paleblood Engine", L.T("The game is still running. Stop it and close the launcher?"),
                     L.T("Cancel"), L.T("Keep it running"), L.T("Stop and close"));
                 if (answer <= 0) return;
                 _closing = true;
@@ -919,7 +919,7 @@ namespace BloodborneLauncher
                 _sidebar.BorderThickness = new Thickness(1);
                 _sidebar.SetResourceReference(Border.BackgroundProperty, "PillTrackBrush");
                 _sidebar.SetResourceReference(Border.BorderBrushProperty, "GlassPaneStrokeBrush");
-                // Settings once, in the LANTERN group (Classic has it at the bottom too).
+                // Settings once, in the PALEBLOOD group (Classic has it at the bottom too).
                 _classicSettingsBottom.IsVisible = false;
                 foreach (var item in _classic)
                     item.Classes.Add("Glass");
@@ -1300,7 +1300,7 @@ namespace BloodborneLauncher
                         L.T("Windows or an antivirus would not let these through, so the old ones were kept:\n") +
                         string.Join("\n", skipped.Take(5)) +
                         L.T("\n\nThe game runs without them; online play may need ") +
-                        L.F($"them. Allow the Lantern Engine folder in the antivirus and update again, or take them from {Updater.ReleasesPage}"));
+                        L.F($"them. Allow the Paleblood Engine folder in the antivirus and update again, or take them from {Updater.ReleasesPage}"));
                 LanternApp.Quit();
             }
             catch (Exception ex)
@@ -1361,7 +1361,7 @@ namespace BloodborneLauncher
                 if (!Paths.IsPortDir(Paths.PortDir))
                 {
                     if (!Prompt.Confirm(L.T("Where is the engine?"),
-                            L.T("The launcher needs the Lantern Engine (the folder with run.py and bin\\bb-probe.exe). ") +
+                            L.T("The launcher needs the Paleblood Engine (the folder with run.py and bin\\bb-probe.exe). ") +
                             L.T("It is normally the folder the launcher came in."), L.T("Choose folder")))
                         return;
                     var folder = Ui.PickFolder(L.T("Port folder (with Bloodborne.exe and run.py)"));

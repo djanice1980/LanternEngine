@@ -24,7 +24,7 @@ namespace BloodborneLauncher.Views
         private readonly StackPanel _themeColour = new(), _picture = new(), _iconPicture = new();
         private TextBlock _pictureHint = null!, _iconPictureHint = null!;
 
-        public SettingsPage() : base(L.T("Settings"), L.T("The Lantern Engine, how the game is started, and keeping this launcher up to date."))
+        public SettingsPage() : base(L.T("Settings"), L.T("The Paleblood Engine, how the game is started, and keeping this launcher up to date."))
         {
             Group(L.T("Appearance"));
             ComboRow(SymbolRegular.LocalLanguage24, L.T("Launcher language"), L.T("Restart the launcher to apply the language."),
@@ -136,7 +136,7 @@ namespace BloodborneLauncher.Views
                 "ui_window_buttons_side", changed: () => MainWindow.Instance?.ApplyWindowButtons());
             ShowAppearance();
 
-            Group("Lantern Engine");
+            Group("Paleblood Engine");
             Add(Card(SymbolRegular.FolderLink24, L.T("Engine folder"), "", Row(
                 SmallButton(L.T("Browse"), SymbolRegular.FolderOpen24, (_, _) => ChoosePort()),
                 IconButton(SymbolRegular.Open24, PlayPage.OpenTip, (_, _) => Paths.OpenFolder(Paths.PortDir)),
@@ -479,7 +479,7 @@ namespace BloodborneLauncher.Views
 
         private static async void ExportShaderCache()
         {
-            var file = Ui.SaveFile(L.T("Export shader catalog"), "Lantern Engine shader catalog.zip", L.T("Shader catalog|*.zip"));
+            var file = Ui.SaveFile(L.T("Export shader catalog"), "Paleblood Engine shader catalog.zip", L.T("Shader catalog|*.zip"));
             if (file == null) return;
             try
             {
@@ -555,7 +555,7 @@ namespace BloodborneLauncher.Views
 
         private void SaveSettingsFile()
         {
-            var file = Ui.SaveFile(L.T("Save settings"), "Lantern Engine settings.json", L.T("Settings|*.json"));
+            var file = Ui.SaveFile(L.T("Save settings"), "Paleblood Engine settings.json", L.T("Settings|*.json"));
             if (file == null) return;
             try
             {

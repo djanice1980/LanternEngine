@@ -31,7 +31,7 @@ namespace BloodborneLauncher.Core
         /// <summary>The engine build this launcher is made for (package.json "engine").</summary>
         public const string EngineId = "lantern-fps94";
 
-        public const string ExeName = "Lantern Engine.exe";
+        public const string ExeName = "Paleblood Engine.exe";
         /// <summary>The launcher's name before 0.9.34 beta 8 (now a forwarder to ExeName).</summary>
         public const string OldExeName = "Bloodborne Launcher.exe";
         private const string PackageFile = "package.json";
@@ -194,7 +194,7 @@ namespace BloodborneLauncher.Core
             ? name.EndsWith("-linux-x64.tar.gz", StringComparison.OrdinalIgnoreCase)
             : name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
-        /// <summary>The launcher's file in a package: "Lantern Engine.exe", on Linux "Lantern Engine".</summary>
+        /// <summary>The launcher's file in a package: "Paleblood Engine.exe", on Linux "Paleblood Engine".</summary>
         private static string LauncherFile => OperatingSystem.IsWindows() ? ExeName : Path.GetFileNameWithoutExtension(ExeName);
 
         private static Release? Parse(JsonElement root)
@@ -210,7 +210,7 @@ namespace BloodborneLauncher.Core
                 var name = asset.GetProperty("name").GetString() ?? "";
                 var url = asset.GetProperty("browser_download_url").GetString();
                 var size = asset.GetProperty("size").GetInt64();
-                // GitHub stores "Lantern Engine.exe" as "Lantern.Engine.exe". A release before the
+                // GitHub stores "Paleblood Engine.exe" as "Paleblood.Engine.exe". A release before the
                 // rename has only the old name.
                 var spaced = name.Replace(".", " ").Replace(" exe", ".exe");
                 if (!OperatingSystem.IsLinux() &&
@@ -376,7 +376,7 @@ namespace BloodborneLauncher.Core
 
         private static Exception Blocked(string file, Exception e) => new InvalidOperationException(
             $"{e.Message}\n\nAn antivirus is most likely holding or removing {Path.GetFileName(file)}. Allow it (or the " +
-            "Lantern Engine folder) in the antivirus and update again.", e);
+            "Paleblood Engine folder) in the antivirus and update again.", e);
 
         private static void Extract(string zip, string to, List<string> skipped)
         {

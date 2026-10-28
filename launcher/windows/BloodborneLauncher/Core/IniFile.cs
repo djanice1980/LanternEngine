@@ -97,7 +97,7 @@ namespace BloodborneLauncher.Core
             }
 
             if (_lines.Count == 0)
-                output.Add("# Lantern Engine settings (in-game menu: Insert / L3+R3)");
+                output.Add("# Paleblood Engine settings (in-game menu: Insert / L3+R3)");
             foreach (var (key, value) in _values)
                 if (!written.Contains(key) && value != null)
                     output.Add($"{key}={value}");

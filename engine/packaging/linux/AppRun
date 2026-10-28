@@ -88,4 +88,4 @@ if [[ ${1:-} == --play ]]; then
     fi
 fi
 cd "$pkg"
-exec "$pkg/Lantern Engine" "$@"
+exec "$pkg/Paleblood Engine" "$@"
