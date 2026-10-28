@@ -13,6 +13,8 @@ namespace BloodborneLauncher.Core
     public static class SteamShortcut
     {
         public const string AppName = "Bloodborne";
+        /// <summary>What Add did about the Steam Deck controller layout (Linux), for the log.</summary>
+        public static string? DeckLayoutNote { get; private set; }
 
         /// <summary>Steam's folder, or null when Steam is not installed.</summary>
         public static string? SteamDir()
@@ -94,6 +96,12 @@ namespace BloodborneLauncher.Core
                 entry.Child("tags");
                 if (File.Exists(file)) File.Copy(file, file + ".bak", overwrite: true);
                 File.WriteAllBytes(file, Vdf.Write(root));
+#if AVALONIA
+                // A Steam Deck: the shortcut's layout for the Deck's own controller, or Game Mode gives it
+                // a keyboard-and-mouse one and the left stick moves the hunter like a d-pad (SteamDeckLayout).
+                try { DeckLayoutNote = SteamDeckLayout.Apply(steam, account, AppName); }
+                catch (Exception e) { DeckLayoutNote = "Steam Deck layout: not written (" + e.Message + ")"; }
+#endif
                 added.Add(account);
             }
             return added;

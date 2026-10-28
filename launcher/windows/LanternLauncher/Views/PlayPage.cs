@@ -348,9 +348,11 @@ namespace BloodborneLauncher.Views
             {
                 SteamShortcut.Add(exe, windows ? "" : "--play");
                 Ws.Log(L.T("Added Bloodborne to Steam as a non-Steam game"), LogLevel.Good);
+                if (SteamShortcut.DeckLayoutNote is { } note) Ws.Log(note, LogLevel.Info);
                 Prompt.Tell(L.T("Added to Steam"),
                     L.T("Bloodborne is in your Steam library after Steam starts again. It starts the game with this launcher's settings; ") +
-                    L.T("Steam shows it as running until the game ends."));
+                    L.T("Steam shows it as running until the game ends.") +
+                    (windows ? "" : " " + L.T("On a Steam Deck the shortcut uses the Gamepad controller layout (set now, unless you had chosen one).")));
             }
             catch (Exception e)
             {

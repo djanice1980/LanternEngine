@@ -19,7 +19,11 @@ Steam Deck: works from the AppImage. Keep Engine > "New memory and translation m
 launcher's recommended settings and its default do that on a Deck: on, the engine stops at the
 start). Output 1280 x 800 (the Deck's own screen; the HUD stays 16:9 in the middle, the world
 fills the screen), FSR 4 with FSR 3.1 frame generation and 90 FPS on a Deck OLED play well; the
-launcher's recommended settings choose them.
+launcher's recommended settings choose them. Play it from the Steam shortcut the launcher's "Add to
+Steam" makes (Steam closed while it is added): it also sets the shortcut's controller layout to
+Steam's Gamepad template. Without that, Game Mode gives a non-Steam shortcut a keyboard-and-mouse
+layout, the left stick types W/A/S/D and the hunter moves as with a d-pad. A shortcut made another
+way: on the game's page press the controller icon, Current Layout, Templates, Gamepad, Apply Layout.
 
 Needs: a Vulkan 1.3 GPU driver (Mesa RADV for AMD, NVIDIA's own driver, Intel ANV), glibc 2.39 or
 later (Ubuntu 24.04, Debian 13, Fedora 40, Arch, SteamOS 3.6, Bazzite), Python 3, X11 or Wayland.
