@@ -32,6 +32,15 @@ export BB_DATA_DIR=$data
 export BB_OUT_DIR=$data/engine/out
 export BB_CONFIG=$data/lantern.ini
 export BB_GPU_USER_DIR=$data/user
+# A PGO training build (engine/out/pgo-generate, BB_PGO=generate): the GPU library's profile goes
+# to the data folder, one file per build (%m: merged into on every write; the engine writes it
+# every 30 s, bbgpu.cpp StartProfileWriter). Copy the files to the checkout's engine/pgo for the
+# optimized build (BB_PGO=use).
+if [[ -f $pkg/engine/out/pgo-generate ]]; then
+    mkdir -p "$data/pgo"
+    export LLVM_PROFILE_FILE="$data/pgo/default_%m.profraw"
+    echo "PGO training build: the profile is written to $data/pgo while the game runs" >&2
+fi
 if [[ ! -f $BB_CONFIG ]]; then
     cp "$pkg/lantern.ini" "$BB_CONFIG"
     # A Steam Deck (the firmware's product name): its own 1280x800 screen, FSR 4 with FSR 3.1 frame

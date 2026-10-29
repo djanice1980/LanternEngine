@@ -18,6 +18,14 @@ fi
 # them in engine/out beside its programs, as on Windows; packaging/linux/bb-start).
 data=${BB_DATA_DIR:-.}
 out=${BB_OUT_DIR:-$data/out}
+# A PGO training build (out/pgo-generate, BB_PGO=generate in build.sh): the GPU library's profile
+# goes to the data folder, one file per build (%m: merged into on every write; the engine writes
+# it every 30 s, bbgpu.cpp StartProfileWriter).
+if [[ -f $out/pgo-generate && -z ${LLVM_PROFILE_FILE:-} ]]; then
+    mkdir -p "$data/pgo"
+    export LLVM_PROFILE_FILE="$data/pgo/default_%m.profraw"
+    echo "PGO training build: the profile is written to $data/pgo while the game runs"
+fi
 mkdir -p "$out"
 export BB_CONFIG=${BB_CONFIG:-$data/bbport.ini}
 # FSR 4.1.1 assets (tools/fsr4cap/build_assets.sh): next to run.sh or in the data directory.

@@ -13,6 +13,10 @@
 # AppImage beside it (appimage.sh, run on the host with APPIMAGETOOL or appimagetool on PATH).
 # BB_MARCH: the instruction-set level of the GPU library (empty: the compiler's default, plain
 # x86-64, which runs everywhere). docker or podman, whichever is installed (BB_CONTAINER).
+# BB_PGO: off (default; the profiles in engine/pgo come from Windows runs and are not used),
+# generate (the training build: the game writes the GPU library's profile into the data folder,
+# <data>/pgo/*.profraw, while it runs), use (engine/pgo/*.profraw from training runs, merged in
+# the container with llvm-profdata, optimize the GPU library).
 set -euo pipefail
 engine=$(cd -- "$(dirname -- "$0")/../.." && pwd)
 version=${1:?usage: packaging/linux/release-docker.sh <version> <package-template folder> <launcher folder>}
@@ -34,7 +38,7 @@ rm -rf "$engine/out/gpu" "$engine/out/atrac9" "$engine/out/libatrac9.a" "$engine
     --user "$(id -u):$(id -g)" -e HOME=/tmp/home \
     -v "$engine/..:/build" -v "$template:/template:ro" -v "$launcher:/launcher:ro" \
     -w /build/engine \
-    -e BB_MARCH="${BB_MARCH:-}" -e BB_PGO=off -e BB_PACKAGE_NAME="${BB_PACKAGE_NAME:-PalebloodEngine}" \
+    -e BB_MARCH="${BB_MARCH:-}" -e BB_PGO="${BB_PGO:-off}" -e BB_PACKAGE_NAME="${BB_PACKAGE_NAME:-PalebloodEngine}" \
     "$image" \
     bash -c 'mkdir -p "$HOME" && git config --global --add safe.directory "*" && bash packaging/linux/build.sh "$0" /template /launcher' "$version"
 name=${BB_PACKAGE_NAME:-PalebloodEngine}

@@ -107,6 +107,9 @@ if ! ninja -C out/gpu ${BB_JOBS:+-j "$BB_JOBS"} bbgpu bb-engine-assets bb-shader
     echo 'GPU library build failed (full log: out/gpu-build.log)' >&2; exit 1
 fi
 cp -f out/gpu/bb-engine-assets* out/
+# The marker of a training build: run.sh and the Linux package's AppRun send the profile to the
+# data folder when they see it (the instrumented library would write into this checkout's pgo/).
+if [[ $pgo == generate ]]; then : > out/pgo-generate; else rm -f out/pgo-generate; fi
 # The cache recompile after a compiler change (start/main.cpp RecompileGpuCache).
 cp -f out/gpu/bb-shader-lab* out/ 2>/dev/null || true
 # The GPU cache's identity (start/main.cpp ResetStaleGpuCache): a hash of the sources that decide
