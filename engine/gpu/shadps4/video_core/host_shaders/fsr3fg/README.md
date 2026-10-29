@@ -9,9 +9,12 @@ SDK's blob accessor through `ffxVk316FramegenModuleOverride`, patch 0002 of
   packed-SAD sums (`BB_OF_PACKED_SAD`: |a - b| = 2 max(a, b) - a - b in packed 16-bit lanes,
   bit-identical results) and its optional skip of the finest level (`BB_OF_LEVEL0_PREDICT`,
   `BB_OF_FAST=1` at run time).
-- `fsr3fg_fi_interpolation.comp`: the interpolation pass, with one hardware bilinear sample in
-  place of four loads where all taps are inside the rectangle (`BB_FI_HARDWARE_BILINEAR`) and
-  one gather per motion field in place of eight loads (`BB_FI_GATHER_FIELD`).
+- `fsr3fg_fi_interpolation.comp`: the interpolation pass, with one gather per motion field in
+  place of eight loads (`BB_FI_GATHER_FIELD`, exact), and as an opt-in (`BB_FI_BILINEAR=1` at
+  run time) one hardware bilinear sample in place of four weighted loads where all taps are
+  inside the rectangle (`BB_FI_HARDWARE_BILINEAR`): the filter's 1/256-step weights differ from
+  the SDK's float weights by up to ~4/255 at bright edges (`BB_FI_CHECK=1` draws the difference,
+  x16), so it is not the default.
 
 The headers here overlay the SDK's (`-I` order in `gpu/CMakeLists.txt`): the three changed by
 bbport (deadinside28/bloodborne_pc 0.7, `gpu/upscale/shaders/ffx`; AMD's MIT files with bbport's

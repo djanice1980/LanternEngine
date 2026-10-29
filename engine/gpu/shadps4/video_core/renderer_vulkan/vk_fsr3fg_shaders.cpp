@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "video_core/host_shaders/fsr3fg_fi_interpolation_bilinear_comp.h"
 #include "video_core/host_shaders/fsr3fg_fi_interpolation_check_comp.h"
 #include "video_core/host_shaders/fsr3fg_fi_interpolation_comp.h"
 #include "video_core/host_shaders/fsr3fg_fi_interpolation_plain_comp.h"
@@ -60,18 +61,27 @@ bool Override(const char* filename, const uint32_t** words, size_t* count) {
         // the SDK's four weighted loads, magenta where a gathered motion-field texel differs
         // from its load (black everywhere = the passes agree).
         static const bool check = EnvIs("BB_FI_CHECK", '1');
+        // BB_FI_BILINEAR=1: one hardware bilinear sample in place of the SDK's four weighted
+        // loads. The filter's 1/256-step weights differ from the SDK's float weights by up to
+        // ~4/255 at bright edges (the check build shows it as a flicker there), so it is not
+        // the default; the gathered motion fields are exact and always on.
+        static const bool bilinear = EnvIs("BB_FI_BILINEAR", '1');
         if (!told) {
             told = true;
             std::printf("Frame generation: interpolation pass built in the engine (%s)\n",
-                        check   ? "CHECK: the difference to the SDK's loads, x16 (BB_FI_CHECK)"
-                        : plain ? "the SDK's code, BB_FG_OWN_PLAIN"
-                                : "hardware bilinear, gathered motion fields");
+                        check      ? "CHECK: the difference to the SDK's loads, x16 (BB_FI_CHECK)"
+                        : plain    ? "the SDK's code, BB_FG_OWN_PLAIN"
+                        : bilinear ? "gathered motion fields, hardware bilinear (BB_FI_BILINEAR)"
+                                   : "gathered motion fields");
         }
         if (check) {
             return Use(FSR3FG_FI_INTERPOLATION_CHECK_COMP, words, count);
         }
-        return plain ? Use(FSR3FG_FI_INTERPOLATION_PLAIN_COMP, words, count)
-                     : Use(FSR3FG_FI_INTERPOLATION_COMP, words, count);
+        if (plain) {
+            return Use(FSR3FG_FI_INTERPOLATION_PLAIN_COMP, words, count);
+        }
+        return bilinear ? Use(FSR3FG_FI_INTERPOLATION_BILINEAR_COMP, words, count)
+                        : Use(FSR3FG_FI_INTERPOLATION_COMP, words, count);
     }
     if (std::strcmp(filename, OpticalFlowSearch) != 0 || EnvIs("BB_FG_OWN_OF", '0')) {
         return false;

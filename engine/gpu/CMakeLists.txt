@@ -221,7 +221,11 @@ function(add_fsr3fg_shader FILENAME SHADER_NAME)
 endfunction()
 add_fsr3fg_shader(fsr3fg_of_v5.comp fsr3fg_of_v5_comp)
 add_fsr3fg_shader(fsr3fg_of_v5.comp fsr3fg_of_v5_fast_comp BB_OF_LEVEL0_PREDICT=1)
-add_fsr3fg_shader(fsr3fg_fi_interpolation.comp fsr3fg_fi_interpolation_comp)
+# The interpolation pass: the gathered motion fields (exact) by default; hardware bilinear
+# sampling (BB_FI_BILINEAR=1 at run time) differs from the SDK's four weighted loads by the
+# filter's 1/256-step weights, up to ~4/255 at bright edges (a flicker in the check build).
+add_fsr3fg_shader(fsr3fg_fi_interpolation.comp fsr3fg_fi_interpolation_comp BB_FI_HARDWARE_BILINEAR=0)
+add_fsr3fg_shader(fsr3fg_fi_interpolation.comp fsr3fg_fi_interpolation_bilinear_comp BB_FI_HARDWARE_BILINEAR=1)
 # The same passes without bbport's changes (BB_FG_OWN_PLAIN=1): the SDK's code through this build.
 add_fsr3fg_shader(fsr3fg_of_v5.comp fsr3fg_of_v5_plain_comp BB_OF_PACKED_SAD=0)
 add_fsr3fg_shader(fsr3fg_fi_interpolation.comp fsr3fg_fi_interpolation_plain_comp BB_FI_HARDWARE_BILINEAR=0 BB_FI_GATHER_FIELD=0)
