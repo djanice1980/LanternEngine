@@ -19,10 +19,12 @@
 #include "ffx_vk_fsr3_3_1_5_bridge.h"
 #include "video_core/host_shaders/frame_gen_compose_comp.h"
 #include "video_core/host_shaders/frame_gen_depth_comp.h"
+#include "video_core/renderer_vulkan/vk_fsr3fg_shaders.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"
 #include "video_core/renderer_vulkan/vk_streamline.h"
+#include "video_core/renderer_vulkan/vk_temporal_upscaler.h"
 
 namespace Vulkan {
 
@@ -400,6 +402,8 @@ bool FrameGenerator::Record(vk::CommandBuffer cmdbuf, const Job& job, vk::ImageV
         return false;
     }
     GlobalBarrier(cmdbuf);
+    DumpGeneratedFrameIfDue(instance, draw_scheduler, cmdbuf, vk::Image(generated_image), width,
+                            height);
     if (!job.present) {
         return false; // a reset: history only
     }
@@ -596,6 +600,7 @@ bool FrameGenerator::EnsureResources(u32 w, u32 h, u32 rw, u32 rh, bool fsr) {
     create.displayHeight = h;
     create.colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
     FfxVkFsr3_3_1_6FrameGenerationContext* created = nullptr;
+    Fsr3FgShaders::Install(instance); // the passes built in the engine (once)
     const auto result = ffxVkFsr3_3_1_6FrameGenerationContextCreate(&create, &created);
     if (result != FFX_VK_FSR3_3_1_6_FRAMEGEN_OK || !created) {
         std::printf("Frame generation: FSR 3.1 context creation failed (%d)\n", int(result));

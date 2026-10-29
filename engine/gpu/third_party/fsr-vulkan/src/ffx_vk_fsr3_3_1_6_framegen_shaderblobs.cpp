@@ -17,6 +17,15 @@
 
 #include <cstring>
 
+extern "C" {
+/// Paleblood Engine: a module built in the engine in place of an embedded one, asked by the
+/// embedded file's name (video_core/renderer_vulkan/vk_fsr3fg_shaders.cpp). Set before the
+/// context is made; null, or false from it, keeps the embedded module. The pipeline takes the
+/// entry point's name from the module itself (ffx_vk_fsr3_3_1_5_pipeline.c).
+bool (*ffxVk316FramegenModuleOverride)(const char* filename, const uint32_t** words,
+                                       size_t* wordCount) = nullptr;
+}
+
 namespace {
 
 constexpr uint32_t kFiProfile = FRAMEINTERPOLATION_SHADER_PERMUTATION_LOW_RES_MOTION_VECTORS;
@@ -37,9 +46,16 @@ FfxErrorCode set_blob(uint32_t index, FfxShaderBlob* outBlob)
         return static_cast<FfxErrorCode>(FFX_ERROR_INVALID_ARGUMENT);
     const FfxVkFsr3_3_1_6FramegenEmbeddedSpirv& module =
         FFX_VK_FSR3_3_1_6_FRAMEGEN_EMBEDDED_SPIRV[index];
+    const uint32_t* words = module.words;
+    size_t wordCount = module.wordCount;
+    if (ffxVk316FramegenModuleOverride &&
+        !ffxVk316FramegenModuleOverride(module.filename, &words, &wordCount)) {
+        words = module.words;
+        wordCount = module.wordCount;
+    }
     std::memset(outBlob, 0, sizeof(*outBlob));
-    outBlob->data = reinterpret_cast<const uint8_t*>(module.words);
-    outBlob->size = static_cast<uint32_t>(module.wordCount * sizeof(uint32_t));
+    outBlob->data = reinterpret_cast<const uint8_t*>(words);
+    outBlob->size = static_cast<uint32_t>(wordCount * sizeof(uint32_t));
     outBlob->entryName = "CS";
     return FFX_OK;
 }

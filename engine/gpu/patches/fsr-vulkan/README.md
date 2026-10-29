@@ -5,3 +5,6 @@ patches here to its working tree when they are not applied yet:
 
 - `0001-...`: `BB_FSR4_PROFILE` (GPU time per FSR 4 pass) and `BB_FSR4_STATS` (driver
   statistics of each pass) in the FSR 4 v07 provider.
+- `0002-...`: `ffxVk316FramegenModuleOverride` in the FSR 3.1.6 frame-generation blob accessor:
+  a module built in the engine in place of an embedded one, by the embedded file's name
+  (`shadps4/video_core/host_shaders/fsr3fg`, `renderer_vulkan/vk_fsr3fg_shaders.cpp`).

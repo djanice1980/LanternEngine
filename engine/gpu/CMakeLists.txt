@@ -195,6 +195,39 @@ foreach(BPP IN ITEMS 8 16 32 64 96 128)
     add_host_shader(tiling.comp tiling_micro_${BPP}_comp BITS_PER_PIXEL=${BPP} IS_MACRO_TILED=0)
     add_host_shader(tiling.comp tiling_macro_${BPP}_comp BITS_PER_PIXEL=${BPP} IS_MACRO_TILED=1)
 endforeach()
+# Paleblood: FSR 3.1 frame-generation passes built from the SDK's GLSL with bbport's changes
+# (host_shaders/fsr3fg/README.md), in place of the modules embedded in fsr-vulkan
+# (renderer_vulkan/vk_fsr3fg_shaders.cpp). The overlay comes first in the include order.
+set(FSR_VULKAN ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fsr-vulkan)
+set(FSR3FG_INCLUDES
+    -I${SHADER_SRC}/fsr3fg
+    -I${FSR_VULKAN}/upstream/ffx-2.3.0/Kits/FidelityFX/framegeneration/fsr3/include/gpu
+    -I${FSR_VULKAN}/upstream/ffx-2.3.0/Kits/FidelityFX/api/internal/gpu
+    -I${FSR_VULKAN}/upstream/ffx-1.1.4/sdk/include/FidelityFX/gpu)
+file(GLOB_RECURSE FSR3FG_OVERLAY CONFIGURE_DEPENDS ${SHADER_SRC}/fsr3fg/*.h)
+function(add_fsr3fg_shader FILENAME SHADER_NAME)
+    set(OUT ${SHADER_DIR}/${SHADER_NAME}.h)
+    string(TOUPPER ${SHADER_NAME} SYMBOL)
+    set(DEFINES FFX_GPU=1 FFX_GLSL=1 FFX_HALF=0 ${ARGN})
+    list(TRANSFORM DEFINES PREPEND "-D")
+    add_custom_command(OUTPUT ${OUT}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_DIR}
+        # -Os: the SPIR-V optimizer's passes (functions inlined, the module half the size), as
+        # DXC gave the embedded modules; glslang's plain output left ~200 function variables.
+        COMMAND ${GLSLANG_COMPILER} --target-env vulkan1.3 -Os -o ${OUT} --vn ${SYMBOL} ${DEFINES} ${FSR3FG_INCLUDES} ${SHADER_SRC}/${FILENAME}
+        COMMAND ${CMAKE_COMMAND} "-DHEADER_FILE=${OUT}" -P ${SHADER_SRC}/AddShaderHeaderInclude.cmake
+        DEPENDS ${SHADER_SRC}/${FILENAME} ${FSR3FG_OVERLAY} VERBATIM)
+    set(SHADER_HEADERS ${SHADER_HEADERS} ${OUT} PARENT_SCOPE)
+endfunction()
+add_fsr3fg_shader(fsr3fg_of_v5.comp fsr3fg_of_v5_comp)
+add_fsr3fg_shader(fsr3fg_of_v5.comp fsr3fg_of_v5_fast_comp BB_OF_LEVEL0_PREDICT=1)
+add_fsr3fg_shader(fsr3fg_fi_interpolation.comp fsr3fg_fi_interpolation_comp)
+# The same passes without bbport's changes (BB_FG_OWN_PLAIN=1): the SDK's code through this build.
+add_fsr3fg_shader(fsr3fg_of_v5.comp fsr3fg_of_v5_plain_comp BB_OF_PACKED_SAD=0)
+add_fsr3fg_shader(fsr3fg_fi_interpolation.comp fsr3fg_fi_interpolation_plain_comp BB_FI_HARDWARE_BILINEAR=0 BB_FI_GATHER_FIELD=0)
+# The interpolation pass's check build (BB_FI_CHECK=1): the frame drawn as the difference between
+# the filtered sample and the SDK's four loads, x16; magenta where a gathered texel differs.
+add_fsr3fg_shader(fsr3fg_fi_interpolation.comp fsr3fg_fi_interpolation_check_comp BB_FI_HARDWARE_BILINEAR=2)
 add_custom_target(host_shaders DEPENDS ${SHADER_HEADERS})
 
 file(GLOB_RECURSE VIDEO_CORE CONFIGURE_DEPENDS shadps4/video_core/*.cpp)

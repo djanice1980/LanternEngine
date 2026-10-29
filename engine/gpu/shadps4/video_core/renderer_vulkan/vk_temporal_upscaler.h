@@ -40,6 +40,14 @@ class CameraMotion;
 class SceneTargets;
 class FrameGenerator;
 
+/// Paleblood BB_FG_DUMP_TRIGGER: FSR 3.1 frame generation's output (the interpolated frame
+/// before the UI is composed in) is saved as generated_<w>x<h> in BB_DUMP_DIR for the next
+/// BB_DUMP_FRAMES (8) generated frames once the trigger file exists (consumed; polled every 30th
+/// frame). `image` in General. For comparing the interpolation passes built in the engine
+/// (vk_fsr3fg_shaders.cpp) with the SDK's offline.
+void DumpGeneratedFrameIfDue(const Instance& instance, Scheduler& scheduler,
+                             vk::CommandBuffer cmdbuf, vk::Image image, u32 width, u32 height);
+
 /// bbport BB_FINAL_DUMP_TRIGGER: the frame as presented (after FSR and post processing) is saved
 /// as final_<w>x<h> in BB_DUMP_DIR when the trigger file exists (consumed). `image` in General.
 void DumpFinalFrameIfDue(const Instance& instance, Scheduler& scheduler, vk::CommandBuffer cmdbuf,
