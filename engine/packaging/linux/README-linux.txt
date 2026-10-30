@@ -24,6 +24,13 @@ Steam" makes (Steam closed while it is added): it also sets the shortcut's contr
 Steam's Gamepad template. Without that, Game Mode gives a non-Steam shortcut a keyboard-and-mouse
 layout, the left stick types W/A/S/D and the hunter moves as with a d-pad. A shortcut made another
 way: on the game's page press the controller icon, Current Layout, Templates, Gamepad, Apply Layout.
+Started outside Steam (the AppImage run by hand in Desktop Mode) the Deck's controls would arrive
+twice: the game reads the controller directly while Steam's desktop layout types keys and moves the
+mouse from the same sticks (the left stick as the d-pad too, L5 opening the application launcher,
+the cursor wandering with the right stick). The engine notices that (the session log says
+"Steam Deck controls read directly") and drops the keyboard and mouse as the echo, takes the
+keyboard from the desktop and hides the pointer while the Deck's controller is the one in use;
+BB_DECK_ECHO=0 in the environment keeps them.
 
 Needs: a Vulkan 1.3 GPU driver (Mesa RADV for AMD, NVIDIA's own driver, Intel ANV), glibc 2.39 or
 later (Ubuntu 24.04, Debian 13, Fedora 40, Arch, SteamOS 3.6, Bazzite), Python 3, X11 or Wayland.

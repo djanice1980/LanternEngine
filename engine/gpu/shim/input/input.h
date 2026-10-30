@@ -46,6 +46,11 @@ typedef struct {
 
 int bbgpu_pc_input(BbPcPad* pad, const bool* keys, int nkeys, int gamepad_present);
 
+/* runtime_pad.c deck_echo: the keyboard and mouse are the Deck controller's echo (Steam's desktop
+   layout on a controller the game reads directly): keyboard and mouse play off and their events
+   dropped while on, and the focused window takes the keyboard from the desktop. */
+void bbgpu_pc_input_echo(int on);
+
 int bbgpu_menu_buttons(uint32_t* confirm, uint32_t* back);
 
 int runtime_pad_type(void);

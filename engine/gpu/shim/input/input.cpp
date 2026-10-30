@@ -22,6 +22,7 @@ using namespace PadBits;
 
 std::atomic<bool> g_active{false};
 std::atomic<InputDevice> g_device{InputDevice::KeyboardMouse};
+std::atomic<bool> g_echo{false}; // bbgpu_pc_input_echo
 std::atomic<bool> g_focused{true}, g_in_window{true}, g_text_entry{false};
 
 std::atomic<bool> g_relative{false}, g_wants_relative{false};
@@ -299,7 +300,7 @@ void Event(const SDL_Event& e, bool blocked) {
         break;
     default: break;
     }
-    if (blocked) return;
+    if (blocked || g_echo.load(std::memory_order_relaxed)) return;
     switch (e.type) {
     case SDL_EVENT_KEY_DOWN:
         NoteDevice(InputDevice::KeyboardMouse);
@@ -351,18 +352,29 @@ void Event(const SDL_Event& e, bool blocked) {
 
 void Pump(SDL_Window* window, bool text_active) {
     g_text_entry = text_active;
-    if (!g_active.load(std::memory_order_relaxed)) return;
-
-    if (!g_focused && (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)) g_focused = true;
-    int w = 0, h = 0;
-    SDL_GetWindowSize(window, &w, &h);
+    const bool focus = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    // The Deck's controls arriving twice (bbgpu_pc_input_echo): Steam's desktop layout types keys
+    // the desktop acts on too (L5 is Meta, Plasma's application launcher), so the focused window
+    // takes the keyboard while the echo lasts (X11: a grab; Wayland: the shortcuts inhibitor), and
+    // the layout moves the mouse from the right stick, a cursor wandering over the game, so the
+    // pointer is locked as for the mouse camera (hidden and held still) unless the overlay wants it.
+    const bool echo = g_echo.load(std::memory_order_relaxed) && focus;
     {
+        static bool grabbed = false;
+        if (echo != grabbed && SDL_SetWindowKeyboardGrab(window, echo)) grabbed = echo;
+    }
+    const bool active = g_active.load(std::memory_order_relaxed);
+    if (active) {
+        if (!g_focused && focus) g_focused = true;
+        int w = 0, h = 0;
+        SDL_GetWindowSize(window, &w, &h);
         std::scoped_lock lock(g_mouse_lock);
         g_mouse.window_w = w;
         g_mouse.window_h = h;
     }
-    const bool want = g_wants_relative && BbSettings::Get().pc_controls && !text_active && !BbOverlay::CapturesInput() &&
-                      g_focused;
+    const bool captures = text_active || BbOverlay::CapturesInput();
+    const bool want = (echo && !captures) ||
+                      (active && g_wants_relative && BbSettings::Get().pc_controls && !captures && g_focused);
     if (want != g_relative && SDL_SetWindowRelativeMouseMode(window, want)) {
         g_relative = want;
         MouseCamera::Reset();
@@ -373,6 +385,7 @@ void Pump(SDL_Window* window, bool text_active) {
 
 bool MouseIsMenuPointer() {
     return BbSettings::Get().mouse_menu && !BbOverlay::MenuOpen() && !g_relative &&
+           !g_echo.load(std::memory_order_relaxed) &&
            g_device.load(std::memory_order_relaxed) == InputDevice::KeyboardMouse;
 }
 
@@ -407,6 +420,11 @@ PadState LastPad() {
 }
 }
 
+extern "C" void bbgpu_pc_input_echo(int on) {
+    const bool was = g_echo.exchange(on != 0, std::memory_order_relaxed);
+    if (on && !was) NoteDevice(InputDevice::Pad);
+}
+
 extern "C" int bbgpu_menu_buttons(std::uint32_t* confirm, std::uint32_t* back) {
     if (!g_active.load(std::memory_order_relaxed)) return 0;
     *confirm = menu_confirm_button();
@@ -416,7 +434,7 @@ extern "C" int bbgpu_menu_buttons(std::uint32_t* confirm, std::uint32_t* back) {
 
 extern "C" int bbgpu_pc_input(BbPcPad* d, const bool* keys, int nkeys, int gamepad_present) {
     const auto& s = BbSettings::Get();
-    if (!g_active.load(std::memory_order_relaxed) || !s.pc_controls) {
+    if (!g_active.load(std::memory_order_relaxed) || !s.pc_controls || g_echo.load(std::memory_order_relaxed)) {
         g_wants_relative = false;
         return 0;
     }

@@ -55,6 +55,43 @@ static uint8_t connected_count;
 static int gamepad_type;
 
 static uint64_t now_us(void) { return host_monotonic_ns()/1000u; }
+
+/* Steam's main process, by the pid file its start script writes (checked every 2 s). */
+static int steam_running(void) {
+    static uint64_t last; static int running;
+    const uint64_t now=now_us();
+    if (last && now-last<2000000) return running;
+    last=now; running=0;
+    const char *home=getenv("HOME");
+    char path[512]; snprintf(path,sizeof path,"%s/.steam/steam.pid",home ? home : "");
+    FILE *f=fopen(path,"r");
+    if (!f) return 0;
+    int pid=0;
+    if (fscanf(f,"%d",&pid)==1 && pid>0) {
+        snprintf(path,sizeof path,"/proc/%d/comm",pid);
+        FILE *c=fopen(path,"r");
+        if (c) { char comm[32]={0}; running=fgets(comm,sizeof comm,c) && !strncmp(comm,"steam",5); fclose(c); }
+    }
+    fclose(f);
+    return running;
+}
+/* A Steam Deck started outside Steam (Desktop Mode, the AppImage run by hand) with Steam running: the
+   game reads the built-in controller directly (SDL, vendor 28de product 1205) while Steam's desktop
+   layout is still on it, typing keys and moving the mouse from the same sticks and buttons, so every
+   control arrives twice (the left stick as the d-pad too). The keyboard and mouse are taken as that
+   echo and dropped while the Deck's controller is the one in use; the focused window also takes the
+   keyboard so the layout's keys stop reaching the desktop (L5 is Meta: Plasma's application launcher).
+   Started by Steam (SteamGameId set) the game gets Steam's virtual gamepad and the shortcut's layout
+   and nothing is dropped. BB_DECK_ECHO=0 keeps the keyboard and mouse, =1 forces the echo handling. */
+static int deck_echo(SDL_Gamepad *g) {
+    static int decided=-1;
+    if (decided<0) {
+        const char *o=getenv("BB_DECK_ECHO");
+        decided=o && *o ? (atoi(o)!=0 ? 1 : 0) : (getenv("SteamGameId") || getenv("SteamAppId")) ? 0 : 2;
+    }
+    if (decided!=2) return decided;
+    return g && SDL_GetGamepadVendor(g)==0x28de && SDL_GetGamepadProduct(g)==0x1205 && steam_running();
+}
 static uint8_t axis(int16_t v) { int x=(v+32768)>>8; return (uint8_t)(x<0 ? 0 : x>255 ? 255 : x); }
 static uint8_t trigger(int16_t v) { int x=v>>7; return (uint8_t)(x<0 ? 0 : x>255 ? 255 : x); }
 static uint16_t touch_axis(float v, int max) {
@@ -330,6 +367,16 @@ static void sample_host(PadData *d) {
     if (!bindings_ready) { load_bindings(); bindings_ready=1; }
     if (bbgpu_overlay_captures_input()) return;
     const bool *k=SDL_WasInit(SDL_INIT_VIDEO) ? SDL_GetKeyboardState(NULL) : NULL;
+    static int echo_was;
+    const int echo=deck_echo(g);
+    if (echo!=echo_was) {
+        echo_was=echo;
+        printf("Runtime: %s\n",echo ? "Steam Deck controls read directly while Steam's desktop layout is on them (started "
+               "outside Steam): keyboard and mouse dropped as their echo, the keyboard taken from the desktop; "
+               "BB_DECK_ECHO=0 keeps them" : "the Deck's controller is no longer in use: keyboard and mouse back");
+    }
+    bbgpu_pc_input_echo(echo);
+    if (echo) k=NULL;
     if (g) {
         int touch_right=0;
         uint32_t menu_confirm=0, menu_back=0;
